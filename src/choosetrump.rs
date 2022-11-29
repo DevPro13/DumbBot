@@ -15,22 +15,18 @@ impl Trump{
     }
 }
     pub fn countsuits(&mut self,cards:&Vec<String>){
-        //this function counts the suits
         for  i in cards{
             let k=i.as_bytes()[1] as char;
             self.suits.insert(k.to_string(),self.suits[&k.to_string()]+1);
         }
     }
-    pub fn ret_counted_suits(&mut self,cards:&Vec<String>)->HashMap<String,u8>{
-        //this returns suits maps to counts
-    &self.countsuits(cards);
-    self.suits.clone()
+    pub fn ret_counted_suits(&self)->HashMap<String,u8>{
+        self.suits.clone()
     }
     pub fn display(&self){
     println!("{:?}",self.suits);
     }
 pub fn gettrumpsuit(&self)->String{
-    //this returns a trump suit
     let mut cards_with_only_one_suits:Vec<String>=Vec::new();
     for key in self.suits.keys(){
         if self.suits[key]==1{
@@ -44,8 +40,6 @@ pub fn gettrumpsuit(&self)->String{
  }
 
 }
-
-
 
 /*
 implementation
