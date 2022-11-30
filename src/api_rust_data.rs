@@ -3,19 +3,19 @@ use serde::{Serialize,Deserialize};
 
 // /hi responce
 #derive[(Serialize,Debug)]
-struct Hello{
+pub struct Hello{
     value:String,
 }
 // /bid payload
 #derive[(Derialize,Debug)]
-struct InBidState{
+pub struct InBidState{
     defenderId:String,
     challengerId:String,
     defenderBid:u8,
     challengerBid:u8,
 }
 #derive[(Desrialize,Debug)]
-struct InBid{
+pub struct InBid{
     playerId:String,
     playerIds:Vec<String>,
     timeRemaining:u16,
@@ -24,12 +24,12 @@ struct InBid{
 }
 // /bid responce
 #derive[(Serialize,Debug)]
-struct Bid{
+pub struct Bid{
     bid:u8,
 }
 // /chooseTrump payload
 #derive[(Deserialize,Debug)]
-struct ChooseTrumpSuit{
+pub struct ChooseTrumpSuit{
     playerId:String,
     playerIds:Vec<String>,
     timeRemaining:u16,
@@ -38,23 +38,23 @@ struct ChooseTrumpSuit{
 }
 //choosetrump response
 #derive[(Serialize,Debug)]
-struct TrumpSuit{
+pub struct TrumpSuit{
     suit:String,
 }
 // plAY PAYLOAD
 #derive[(Deserialize,Debug)]
-struct Team{
+pub struct Team{
     players:Vec<String>,
     bid:u8,
     won:u8,
 }
 #derive[(Desrialize,Debug)]
-struct TrumpRevealed{
+pub struct TrumpRevealed{
     hand:u8,
     playerId:String,
 }
 #derive[(Deserialize,Debug)]
-struct Play<T,U>{//T bool or string, U--> bool or Object
+pub struct Play<T,U>{//T bool or string, U--> bool or Object
     playerId:String,
     playerIds:Vec<String>,
     timeRemaining:u16,
@@ -68,17 +68,17 @@ struct Play<T,U>{//T bool or string, U--> bool or Object
 }
 // play responce
 #derive[(Serialize,Debug)]
-struct ThrowCard{
+pub struct ThrowCard{
     card:String,
 }
 // if you have the request trumo reveal
 #derive[(Serialize,Debug)]
-struct RevealTrump{
+pub struct RevealTrump{
     revealTrump:bool,
 }
 // reveal trump and throw card at once
 #derive[(Serialize,Debug)]
-struct RevealTrumpAndThrowCard{
+pub struct RevealTrumpAndThrowCard{
     revealTrump:bool,
     card:String,
 }

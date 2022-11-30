@@ -3,7 +3,6 @@ use std::collections::HashMap;
 pub struct Trump{
     suits:HashMap<String,u8>,
 }
-
 impl Trump{
  pub fn init_trump_count(&mut self)->Trump{
  Trump{ suits:HashMap::from([
