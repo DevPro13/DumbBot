@@ -18,7 +18,7 @@ pub struct InBidState{
 pub struct InBid{
     playerId:String,
     playerIds:Vec<String>,
-    timeRemaining:u16,
+    timeRemaining:i32,
     cards:Vec<String>,
     bidHistory:Vec<(String,u8)>,
     bidState:InBidState,
@@ -27,7 +27,7 @@ pub struct InBid{
 // /bid responce
 #[derive(Serialize,Debug)]
 pub struct Bid{
-    bid:u8,
+    pub bid:u8,
 }
 /*..................................................................................................... */
 // /chooseTrump payload
@@ -35,7 +35,7 @@ pub struct Bid{
 pub struct ChooseTrumpSuit{
     playerId:String,
     playerIds:Vec<String>,
-    timeRemaining:u16,
+    timeRemaining:i32,
     cards:Vec<String>,
     bidHistory:Vec<(String,u8)>,
 }
@@ -43,7 +43,7 @@ pub struct ChooseTrumpSuit{
 //choosetrump response
 #[derive(Serialize,Debug)]
 pub struct TrumpSuit{
-    suit:String,
+    pub suit:String,
 }
 /*..................................................................................................... */
 // plAY PAYLOAD
@@ -58,7 +58,7 @@ pub enum TrumpSuitEnum {
 pub struct Team{
     players:Vec<String>,
     bid:u8,
-    won:u8,
+    won:i32,
 }
 #[derive(Deserialize,Debug)]
 pub struct TrumpRevealed{
@@ -79,7 +79,7 @@ pub struct Play{//T bool or string, U--> bool or Object
  //#[allow(non_camel_case_types)]
     playerId:String,
     playerIds:Vec<String>,
-    timeRemaining:u16,
+    timeRemaining:i32,
     teams:Vec<Team>,
     cards:Vec<String>,
     bidHistory:Vec<(String,u8)>,
@@ -92,16 +92,16 @@ pub struct Play{//T bool or string, U--> bool or Object
 // play responce
 #[derive(Serialize,Debug)]
 pub struct ThrowCard{
-    card:String,
+    pub card:String,
 }
 // if you have the request trumo reveal
 #[derive(Serialize,Debug)]
 pub struct RevealTrump{
-    revealTrump:bool,
+   pub revealTrump:bool,
 }
 // reveal trump and throw card at once
 #[derive(Serialize,Debug)]
 pub struct RevealTrumpAndThrowCard{
-    revealTrump:bool,
-    card:String,
+    pub revealTrump:bool,
+    pub card:String,
 }
