@@ -1,17 +1,18 @@
-use std::collections::HashMap;
-use std::collections::HashSet;
-
+use std::collections::{
+    HashMap,
+    HashSet
+};
 mod algorithm{
-const cards_point=HashMap::from([
-    ("JS",3),("JD",3),("JH",3),("JC",3),
-    ("9S",2),("9D",2),("9H",2),("9C",2),
-    ("1S",1),("1D",1),("1H",1),("1C",1),
-    ("TS",1),("TD",1),("TH",1),("TC",1),
-    ("KS",0),("KD",0),("KH",0),("KC",0),
-    ("QS",0),("QD",0),("QH",0),("QC",0),
-    ("8S",0),("8D",0),("8H",0),("8C",0),
-    ("7S",0),("7D",0),("7H",0),("7C",0),
-]);
+const points=HashMap::from([
+        "J":3,
+        "9":2,
+        "T":1,
+        "1":1,
+        "K":0,
+        "Q":0,
+        "8":0,
+        "7":0,
+    ]);
 //SET OF ALL CARDS
 const cards=HashSet::from([
     "JS","JD","JH","JC",
@@ -23,6 +24,17 @@ const cards=HashSet::from([
     "8S","8D","8H","8C",
     "7S","7D","7H","7C",
 ]);
+const rank::HashMap::from([
+    "J":8,
+    "9":7,
+    "T":6,
+    "1":5,
+    "K":4,
+    "Q":3,
+    "8":2,
+    "7":1,
+]);
+
 
 fn give_sum_of_points(board)->u8{
 
