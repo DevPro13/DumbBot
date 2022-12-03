@@ -11,10 +11,14 @@ use actix_web::{get,
                 http::header::ContentType,
             };
 mod api_rust_data;
+mod choosetrump;
+mod bid;
+mod play;
+mod hi;
 use self::api_rust_data::{
                             Hello,//hi responce
                             InBid as BidPayload,//bid payload
-                            Bid as BidResponce,//bid responce
+                            Bid,//bid responce
                             ChooseTrumpSuit as ChooseTrumpPayload,
                             TrumpSuit,//choose trump responce
                             Play,//play payload
@@ -24,9 +28,7 @@ use self::api_rust_data::{
 };
 #[get("/hi")]
 async fn hi() ->impl Responder {
-    let hello = Hello{
-        value:"hello".to_string(),
-    };
+    let hello:Hello = hi::responce_hi();
      // Serialize it to a JSON string.
     let body = serde_json::to_string(&hello).unwrap();
     println!("{:?}",body);
@@ -42,10 +44,9 @@ async fn bid(payload: web::Json<BidPayload>) -> Result<String> {
     println!("{:?}",payload);
     let web::Json(BidPayload:bid_payload)=payload;
     println!("{:?}",bid_payload);
-    //let obtained_bid =bid::get_bid(&bid_payload);//get object of Bidresponce
+    let obtained_bid:Bid =bid::get_bid(&bid_payload);//get object of Bidresponce
      // Serialize it to a JSON string.
-     let body=r#"{"bid"}:28"#;
-     //let body = serde_json::to_string(&obtained_bid).unwrap();
+     let body = serde_json::to_string(&obtained_bid).unwrap();
      Ok(format!("{}",body))
  }
 
