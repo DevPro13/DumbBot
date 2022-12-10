@@ -1,12 +1,14 @@
 use std::collections::HashMap;
 mod api_rust_data;
 mod choosetrump;
-mod algorithm;
-use super::algorithm::CountHighestRankCards;
+#[derive(Clone,Default)]
+pub struct CountHighestRankCards{
+    card:HashMap<String,u8>,
+}
 use super::choosetrump::Trump;
 use super::api_rust_data::{InBid,Bid,InBidState};
-pub impl CountHighestRankCards{
-    fn init_count(&mut self)->CountHighestRankCards{
+impl CountHighestRankCards{
+    pub fn init_count(&mut self)->CountHighestRankCards{
         CountHighestRankCards{
             card:HashMap::from([
                 "J".to_string():0,
@@ -31,6 +33,9 @@ pub impl CountHighestRankCards{
         }
         false
     }
+    fn return_total_cards_of_given_rank(&self,card:String)->u8{
+        self.cards[card]
+    }
 }
 
 pub fn get_bid(bid_payload:&InBid)->Bid{
@@ -44,7 +49,7 @@ pub fn get_bid(bid_payload:&InBid)->Bid{
     
 
     //bidding decision starts here
-    if bid_payload.bidHistory.len()==0 && can_get_min_bid(&counted_suits,&high_rank_cards){
+    if bid_payload.bidHistory.len()==0 && can_get_min_bid(&count_rank_cards,&count_suits){
         return Bid{bid:16,};//pass minimum bid
     }
 
@@ -57,7 +62,28 @@ pub fn get_bid(bid_payload:&InBid)->Bid{
 
 
 ///bidding decisions logics
-fn can_get_min_bid(suits:&)->bool{
+fn can_get_min_bid(mycards:&CountHighestRankCards,suits:&Trump)->bool{
+    //if i don't have any 9 and J cards.. I should pass
+    if mycards.return_total_cards_of_given_rank("J".to_string())==0 && mycards.get_highest_rank_cards("9".to_string())==0{
+        return false;
+    }
+    //if i have atleast 1 1 J and 9 cards.. I should bet minimum
+    if mycards.check_atleast_one_present("J".to_string())&& mycards.check_atleast_one_present("9".to_string()){
+        return true;
+    }
+    //if more than 2 9s, bet min
+    if mycards.return_total_cards_of_given_rank("J".to_string())>1 || mycards.return_total_cards_of_given_rank("9".to_string())>1{
+        return true;
+    }
+//if cards have 3 same suit cards
+    if suits.check_if_cards_has_three_same_suits(){
+        return true;
+    }
+    //if cards has 2 same suit and atleast one 9 and
+    if suits.check_if_cards_has_two_same_suits() && mycards.check_atleast_one_present("J".to_string())&& mycards.check_atleast_one_present("9".to_string()){
+        return true;
+    }
+    false
 
 }
 fn can_challenge_the_defender_bid()->bool{
