@@ -1,37 +1,32 @@
 use serde::{Serialize,Deserialize};
-
 // /hi responce
-#[derive(Serialize,Debug)]
+#derive[(Serialize,Debug)]
 pub struct Hello{
-    pub value:String,
+    value:String,
 }
-/*..................................................................................................... */
 // /bid payload
-#[derive(Deserialize,Debug)]
+#derive[(Derialize,Debug)]
 pub struct InBidState{
     defenderId:String,
     challengerId:String,
     defenderBid:u8,
     challengerBid:u8,
 }
-#[derive(Deserialize,Debug)]
+#derive[(Desrialize,Debug)]
 pub struct InBid{
     playerId:String,
     playerIds:Vec<String>,
     timeRemaining:i32,
-    cards:Vec<String>,
     bidHistory:Vec<(String,u8)>,
     bidState:InBidState,
 }
-/*..................................................................................................... */
 // /bid responce
-#[derive(Serialize,Debug)]
+#derive[(Serialize,Debug)]
 pub struct Bid{
-    pub bid:u8,
+    bid:u8,
 }
-/*..................................................................................................... */
 // /chooseTrump payload
-#[derive(Deserialize,Debug)]
+#derive[(Deserialize,Debug)]
 pub struct ChooseTrumpSuit{
     playerId:String,
     playerIds:Vec<String>,
@@ -39,18 +34,15 @@ pub struct ChooseTrumpSuit{
     cards:Vec<String>,
     bidHistory:Vec<(String,u8)>,
 }
-/*..................................................................................................... */
 //choosetrump response
-#[derive(Serialize,Debug)]
+#derive[(Serialize,Debug)]
 pub struct TrumpSuit{
-    pub suit:String,
+    suit:String,
 }
-/*..................................................................................................... */
 // plAY PAYLOAD
 #[derive(Debug,Deserialize)]
 #[serde(untagged)]
 pub enum TrumpSuitEnum {
- #[allow(non_camel_case_types)]
     Suit(String),
     SuitShown(bool),
 }
@@ -58,25 +50,21 @@ pub enum TrumpSuitEnum {
 pub struct Team{
     players:Vec<String>,
     bid:u8,
-    won:i32,
+    won:u8,
 }
 #[derive(Deserialize,Debug)]
 pub struct TrumpRevealed{
- #[allow(non_camel_case_types)]
     hand:u8,
     playerId:String,
 }
 #[derive(Debug,Deserialize)]
 #[serde(untagged)]
 pub enum TrumpRevealEnum {
- #[allow(non_camel_case_types)]
     RevealedBy(TrumpRevealed),
     trumpRevealed(bool),
 }
- #[allow(non_camel_case_types)]
 #[derive(Deserialize,Debug)]
 pub struct Play{//T bool or string, U--> bool or Object
- //#[allow(non_camel_case_types)]
     playerId:String,
     playerIds:Vec<String>,
     timeRemaining:i32,
@@ -88,20 +76,19 @@ pub struct Play{//T bool or string, U--> bool or Object
     trumpSuit:TrumpSuitEnum,
     trumpRevealed:TrumpRevealEnum,
 }
-/*..................................................................................................... */
 // play responce
-#[derive(Serialize,Debug)]
+#derive[(Serialize,Debug)]
 pub struct ThrowCard{
-    pub card:String,
+    card:String,
 }
 // if you have the request trumo reveal
-#[derive(Serialize,Debug)]
+#derive[(Serialize,Debug)]
 pub struct RevealTrump{
-   pub revealTrump:bool,
+    revealTrump:bool,
 }
 // reveal trump and throw card at once
-#[derive(Serialize,Debug)]
+#derive[(Serialize,Debug)]
 pub struct RevealTrumpAndThrowCard{
-    pub revealTrump:bool,
-    pub card:String,
+    revealTrump:bool,
+    card:String,
 }
