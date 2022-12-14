@@ -3,7 +3,7 @@ use std::collections::{
     HashSet
 };
 pub struct Knowledge{
-    //this will give the know of used and unused cards of respective suits
+    //this will give the knowledge of played and un-played cards of respective suits
     //each variable represent a suit of 1 byte
     //MSB of each byte represents card of JAck of respective suit and LSB represents & card of 9 of respective suit
     //if any bit flag 0, it represent that card is played.. if 1, it is not played card
@@ -13,12 +13,51 @@ pub struct Knowledge{
     D:u8,//for cards of Diamond suit
     S:u8,//for cards of Spades suit
 }
+impl Knowledge{
+    fn init(&mut self)->Knowledge{
+        Knowledge{
+            //initially all cards are not played
+            H:255,
+            C:255,
+            D:255,
+            S:255,
+        }
+    }
+    fn update_knowledge(&mut self,cards:&Vec<String>){
+        fn update_card(card:char)->u8{
+            match card{
+                'J'=>128,
+                '9'=>64,
+                '1'=>32,
+                'T'=>16,
+                'K'=>8,
+                'Q'=>4,
+                '8'=>2,
+                '7'=>1,
+                 _ => {
+                        println!("Not played card");
+                        0
+                    },
+         }
+    }
+    for card in cards{
+        let suit=card.as_bytes()[1] as char;
+        match suit {
+            'H'=>self.H^=update_card(card.as_bytes()[0] as char),
+            'C'=>self.C^=update_card(card.as_bytes()[0] as char),
+            'D'=>self.D^=update_card(card.as_bytes()[0] as char),
+            'S'=>self.S^=update_card(card.as_bytes()[0] as char),
+            _=>println!("No matched suit"),
+        }
+    }
+ }
+}
 mod algorithm{
 const points=HashMap::from([
         "J":3,
         "9":2,
-        "T":1,
         "1":1,
+        "T":1,
         "K":0,
         "Q":0,
         "8":0,
@@ -38,8 +77,8 @@ const cards=HashSet::from([
 const rank::HashMap::from([
     "J":8,
     "9":7,
-    "T":6,
-    "1":5,
+    "1":6,
+    "T":5,
     "K":4,
     "Q":3,
     "8":2,
