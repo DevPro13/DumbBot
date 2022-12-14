@@ -2,6 +2,17 @@ use std::collections::{
     HashMap,
     HashSet
 };
+pub struct Knowledge{
+    //this will give the know of used and unused cards of respective suits
+    //each variable represent a suit of 1 byte
+    //MSB of each byte represents card of JAck of respective suit and LSB represents & card of 9 of respective suit
+    //if any bit flag 0, it represent that card is played.. if 1, it is not played card
+    //initially all bits are set.. means all cards are not played..
+    H:u8,//for cards of Heart suit
+    C:u8,//for cards of Club suit
+    D:u8,//for cards of Diamond suit
+    S:u8,//for cards of Spades suit
+}
 mod algorithm{
 const points=HashMap::from([
         "J":3,
