@@ -1,6 +1,6 @@
 use std::collections::{
     HashMap,
-    HashSet
+    HashSet,
 };
 pub struct Knowledge{
     //this will give the knowledge of played and un-played cards of respective suits
@@ -23,90 +23,80 @@ impl Knowledge{
             S:255,
         }
     }
-    fn update_knowledge(&mut self,cards:&Vec<String>){
-        fn update_card(card:char)->u8{
-            match card{
-                'J'=>128,
-                '9'=>64,
-                '1'=>32,
-                'T'=>16,
-                'K'=>8,
-                'Q'=>4,
-                '8'=>2,
-                '7'=>1,
-                 _ => {
-                        println!("Not played card");
-                        0
-                    },
-         }
-    }
-    for card in cards{
-        let suit=card.as_bytes()[1] as char;
-        match suit {
-            'H'=>self.H^=update_card(card.as_bytes()[0] as char),
-            'C'=>self.C^=update_card(card.as_bytes()[0] as char),
-            'D'=>self.D^=update_card(card.as_bytes()[0] as char),
-            'S'=>self.S^=update_card(card.as_bytes()[0] as char),
-            _=>println!("No matched suit"),
+    fn card_mapto_bitpos(card:char)->u8{
+        match card{
+            'J'=>128,
+            '9'=>64,
+            '1'=>32,
+            'T'=>16,
+            'K'=>8,
+            'Q'=>4,
+            '8'=>2,
+            '7'=>1,
+             _ => {
+                    println!("Not played card");
+                    0
+                },
         }
     }
- }
+    fn update_knowledge(&mut self,cards:&Vec<String>){
+        for card in cards{
+            let suit=card.as_bytes()[1] as char;
+            match suit {
+                'H'=>self.H^=card_mapto_bitpos(card.as_bytes()[0] as char),
+                'C'=>self.C^=card_mapto_bitpos(card.as_bytes()[0] as char),
+                'D'=>self.D^=card_mapto_bitpos(card.as_bytes()[0] as char),
+                'S'=>self.S^=card_mapto_bitpos(card.as_bytes()[0] as char),
+                _=>println!("No matched suit"),
+            }
+        }
+    }
+    fn check_played_card(card:String)->bool{
+        //this funtion takes a card eg "JS" as input and tell it is played or not
+        let suit=card.as_bytes()[1] as char;
+        match suit {
+            'H'=>{
+                if (self.H & card_mapto_bitpos(card.as_bytes()[0] as char))!=0{
+                    return true;
+                }
+                false
+            },
+            'C'=>{
+                if (self.C & card_mapto_bitpos(card.as_bytes()[0] as char))!=0{
+                    return true;
+                }
+                false
+            },
+            'D'=>{
+                if (self.D & card_mapto_bitpos(card.as_bytes()[0] as char))!=0{
+                    return true;
+                }
+                false
+            },
+            'S'=>{
+                if (self.S & card_mapto_bitpos(card.as_bytes()[0] as char))!=0{
+                    return true;
+                }
+                false
+            },
+        }
+    }
 }
-mod algorithm{
-const points=HashMap::from([
-        "J":3,
-        "9":2,
-        "1":1,
-        "T":1,
-        "K":0,
-        "Q":0,
-        "8":0,
-        "7":0,
+
+pub mod algorithm{
+const cards=HashMap::from([
+                //each suit cards ranks and points
+                'J':(1,3),
+                '9':(2,2),
+                '1':(3,1),
+                'T':(4,1)
+                'K':(5,0),
+                'Q':(6,0),
+                '8':(7,0),
+                '7':(8,0),
     ]);
-//SET OF ALL CARDS
-const cards=HashSet::from([
-    "JS","JD","JH","JC",
-    "9S","9D","9H","9C",
-    "1S","1D","1H","1C",
-    "TS","TD","TH","TC",
-    "KS","KD","KH","KC",
-    "QS","QD","QH","QC",
-    "8S","8D","8H","8C",
-    "7S","7D","7H","7C",
-]);
-const rank::HashMap::from([
-    "J":8,
-    "9":7,
-    "1":6,
-    "T":5,
-    "K":4,
-    "Q":3,
-    "8":2,
-    "7":1,
-]);
-
-
-fn give_sum_of_points(board)->u8{
-
-}
-fn minimax(is_max_team:bool,board){//is_,max represent miximizing player or not..and board is playboard.. 
-    if board.len()==4{
-        return give_sum_of_points(board);
-    }
-    if is_max_team{
-        
+    fn give_sum_of_points(board)->u8{
 
     }
-    else{
-        //min team
-    }
 
-}
-    
-}
-mod bid{
-
-}
-mod get_trump{
-    
 }
