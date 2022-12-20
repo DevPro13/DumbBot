@@ -49,7 +49,7 @@ pub fn get_bid(bid_payload:&InBid)->Bid{
     
 
     //bidding decision starts here
-    if bid_payload.bidHistory.len()==0 && can_get_min_bid(&count_rank_cards,&count_suits){
+    if bid_payload.bidHistory.len()==0 && can_get_max_bid(&count_rank_cards,&count_suits){
         return Bid{bid:16,};//pass minimum bid
     }
 
@@ -59,30 +59,47 @@ pub fn get_bid(bid_payload:&InBid)->Bid{
         return Bid{bid:0,};//return because i don't want to increase the bid
     }
 
-
+    if can_get_max_bid(&count_rank_cards,&count_suits){
     if bid_payload.playerId==InBidState.defenderId{
-        //bid more or equal
-        
+        if InBidState.challengerBid>=18{// i don't wanna go any further
+            return Bid{bid:0,};
+        }
+       //if this true bid more than challenger bid
+        if (suits.check_if_cards_has_three_same_suits()||suits.check_if_cards_has_two_same_suits()) && mycards.check_atleast_one_present("J".to_string())&& mycards.check_atleast_one_present("9".to_string()){
+            return Bid{
+                bid:InBidState.challengerBid+1,
+            };
+        }
+        //else bid equal
+        if suits.check_if_cards_has_two_same_suits() && mycards.check_atleast_one_present("J".to_string()){
+            return Bid{
+                bid:InBidState.challengerBid,
+            };
+        }
+        //pass
+        return Bid{
+            bid:0,
+        };
     }
     if bid_payload.playerId==InBidState.challengerId{
         //bid more or pass
-
+        if InBidState.defenderBid>=18{// i don't wanna go any further
+        return Bid{bid:0,};
     }
-
-
-    
-
-
+   //if this true bid more than challenger bid
+    if (suits.check_if_cards_has_three_same_suits()||suits.check_if_cards_has_two_same_suits()) && mycards.check_atleast_one_present("J".to_string())&& mycards.check_atleast_one_present("9".to_string()){
+        return Bid{
+            bid:InBidState.challengerBid+1,
+        };
+    }
+}
+}
     Bid{bid:0,}//pass bid
 }
 
 
 ///bidding decisions logics
-fn can_get_min_bid(mycards:&CountHighestRankCards,suits:&Trump)->bool{
-    //if i don't have any 9 and J cards.. I should pass
-    if mycards.return_total_cards_of_given_rank("J".to_string())==0 && mycards.get_highest_rank_cards("9".to_string())==0{
-        return false;
-    }
+fn can_get_max_bid(mycards:&CountHighestRankCards,suits:&Trump)->bool{
     //if i have atleast 1 1 J and 9 cards.. I should bet minimum
     if mycards.check_atleast_one_present("J".to_string())&& mycards.check_atleast_one_present("9".to_string()){
         return true;
@@ -102,14 +119,3 @@ fn can_get_min_bid(mycards:&CountHighestRankCards,suits:&Trump)->bool{
     false
 
 }
-fn can_challenge_the_defender_bid()->bool{
-
-}
-
-
-/*
-fn main() {
-    let test = vec!["one", "two", "three"];
-    let index = test.iter().position(|&r| r == "two").unwrap();
-    println!("{}", index);
-}*/
