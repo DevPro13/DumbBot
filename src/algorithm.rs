@@ -82,8 +82,7 @@ impl Knowledge{
         }
     }
 }
-
-pub mod algorithm{
+pub mod make_optimal_move{
 const cards=HashMap::from([
                 //each suit cards ranks and points
                 'J':(1,3),
@@ -98,5 +97,4 @@ const cards=HashMap::from([
     fn give_sum_of_points(board)->u8{
 
     }
-
 }
