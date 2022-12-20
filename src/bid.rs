@@ -53,6 +53,22 @@ pub fn get_bid(bid_payload:&InBid)->Bid{
         return Bid{bid:16,};//pass minimum bid
     }
 
+    //yedi def and chalenger is betn team.. one of them must pass to minimize max bid.
+    let index = bid_payload.players.iter().position(|playerid| *playerid == bid_payload.defenderId).unwrap();
+    if bid_payload.players[(index+2)%4]==bid_payload.challengerId{
+        return Bid{bid:0,};//return because i don't want to increase the bid
+    }
+
+
+    if bid_payload.playerId==InBidState.defenderId{
+        //bid more or equal
+        
+    }
+    if bid_payload.playerId==InBidState.challengerId{
+        //bid more or pass
+
+    }
+
 
     
 
@@ -90,12 +106,10 @@ fn can_challenge_the_defender_bid()->bool{
 
 }
 
+
 /*
-Bid strategy
-
-if 1st your turn,
-    bid min 16 or pass
-if defender bid 16:
-    bid 17 or else pass
-
-*/
+fn main() {
+    let test = vec!["one", "two", "three"];
+    let index = test.iter().position(|&r| r == "two").unwrap();
+    println!("{}", index);
+}*/
