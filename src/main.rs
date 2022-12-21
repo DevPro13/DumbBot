@@ -1,3 +1,10 @@
+mod choosetrump;
+mod api_rust_data;
+mod bid;
+use self::bid::get_bid;
+use self::choosetrump::get_trump_suit;
+mod hi;
+use self::hi::Hello;
 //use std::time::Instant;
 use actix_cors::Cors;
 use actix_web::{get, 
@@ -10,13 +17,7 @@ use actix_web::{get,
                 Result,
                 http::header::ContentType,
             };
-mod api_rust_data;
-mod choosetrump;
-mod bid;
-mod play;
-mod hi;
 use self::api_rust_data::{
-                            Hello,//hi responce
                             InBid as BidPayload,//bid payload
                             Bid,//bid responce
                             ChooseTrumpSuit as ChooseTrumpPayload,
@@ -27,12 +28,10 @@ use self::api_rust_data::{
                             ThrowCard,
 };
 #[get("/hi")]
-async fn hi() ->impl Responder {
-    let hello:Hello = hi::responce_hi();
+async fn hi_req() ->impl Responder {
+    let hello:Hello =Hello::responce_hi(&mut Hello::default());
      // Serialize it to a JSON string.
     let body = serde_json::to_string(&hello).unwrap();
-    println!("{:?}",body);
-
     // Create response and set content type
     HttpResponse::Ok()
         .content_type(ContentType::json())
@@ -40,35 +39,38 @@ async fn hi() ->impl Responder {
 }
 
 #[post("/bid")]
-async fn bid(payload: web::Json<BidPayload>) -> Result<String> {
-    println!("{:?}",payload);
-    let web::Json(BidPayload:bid_payload)=payload;
-    println!("{:?}",bid_payload);
-    let obtained_bid:Bid =bid::get_bid(&bid_payload);//get object of Bidresponce
+async fn bid_req(payload: web::Json<BidPayload>) -> Result<String> {
+    //println!("{:?}",payload);
+    let web::Json(BidPayload)=payload;
+    //println!("{:?}",bid_payload);
+    let obtained_bid:Bid=get_bid(&BidPayload);//get object of Bidresponce
      // Serialize it to a JSON string.
      let body = serde_json::to_string(&obtained_bid).unwrap();
      Ok(format!("{}",body))
  }
 
 #[post("/chooseTrump")]
-async fn trump(payload: web::Json<ChooseTrumpPayload>) -> Result<String> {
+async fn trump_req(payload: web::Json<ChooseTrumpPayload>) -> Result<String> {
     println!("{:?}",payload);
-    //let trump_suiit =trump::get_trump_suit(&payload);//get object of trumpResponce
+    let web::Json(ChooseTrumpPayload)=payload;
+    let trump_suiit =get_trump_suit(&ChooseTrumpPayload.cards);//get object of trumpResponce
     // Serialize it to a JSON string.
-    //let body = serde_json::to_string(&trump_suiit).unwrap();
-    let body=r#"{"suit"}:"H""#;
+    let body = serde_json::to_string(&trump_suiit).unwrap();
+    //let body=r#"{"suit"}:"H""#;
     Ok(format!("{}",body))
 }
 #[post("/play")]
 async fn play_card(payload: web::Json<Play>) -> Result<String> {
     println!("{:?}",payload);
+    //let web::Json(Play:play_payload)=payload;
     // let start = Instant::now();
     //et player_move = play::get_move(&payload);
     // let duration = start.elapsed();
     // println!("Get move took {:?}", duration);
-    et play_card =play::get_optimal_play(&payload);//get object of Bidresponce
+    //let play_card=play::play_game(&payload.Play);//get object of playresponce
     // Serialize it to a JSON string.
-    let body = serde_json::to_string(&play_card).unwrap();
+    //let body = serde_json::to_string(&play_card).unwrap();
+    let body=r#"{"suit"}:"JH""#;
     Ok(format!("{}",body))
 }
 
@@ -77,9 +79,9 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .wrap(Cors::permissive())
-            .service(hi)
-            .service(bid)
-            .service(trump)
+            .service(hi_req)
+            .service(bid_req)
+            .service(trump_req)
             .service(play_card)
     })
     .bind(("127.0.0.1",7878))?

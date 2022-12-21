@@ -1,7 +1,11 @@
-mod api_rust_data;
-use super::api_rust_data::{Hello,};
+use serde::{Serialize};
+// /hi responce
+#[derive(Serialize,Debug,Default)]
+pub struct Hello{
+    value:String,
+}
 impl Hello{
-    fn responce_hi(&mut self)->Hello{
+    pub fn responce_hi(&mut self)->Hello{
         Hello{value:"hello".to_string(),}
     }
 }

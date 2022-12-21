@@ -37,26 +37,16 @@ pub fn gettrumpsuit(&self)->String{
     }
     cards_with_only_one_suits[0].clone()
  }
+ pub fn check_if_cards_has_three_same_suits(&self)->bool{
+    true
+ }
+ pub fn check_if_cards_has_two_same_suits(&self)->bool{
+    true
+ }
 
 }
-
-/*
-implementation
-
-
-use std::collections::HashMap;
-mod moduleinrust;
-use self::moduleinrust::*;
-fn main(){
-let mut trump=Trump::init_trump_count(&mut moduleinrust::Trump::default());
-let cards:Vec<String>=vec!["1H".to_string(),"JS".to_string(),"8C".to_string(),"9D".to_string(),];
-trump.display();
-trump.countsuits(&cards);
-trump.display();
-println!("{}",trump.gettrumpsuit());
-let counted_suits:HashMap<String,u8>=trump.ret_counted_suits();
-println!("{:?}",counted_suits);
+pub fn get_trump_suit(cards:&Vec<String>)->String{
+    let mut trump=Trump::init_trump_count(&mut Trump::default());
+    trump.countsuits(&cards);
+    trump.gettrumpsuit()
 }
-
-
- */

@@ -1,43 +1,39 @@
 use serde::{Serialize,Deserialize};
-// /hi responce
-#[derive(Serialize,Debug)]
-pub struct Hello{
-    value:String,
-}
 // /bid payload
-#[derive(Derialize,Debug)]
+#[derive(Deserialize,Debug)]
 pub struct InBidState{
-    defenderId:String,
-    challengerId:String,
-    defenderBid:u8,
-    challengerBid:u8,
+    pub defenderId:String,
+    pub challengerId:String,
+    pub defenderBid:u8,
+    pub challengerBid:u8,
 }
-#[derive(Desrialize,Debug)]
+#[derive(Deserialize,Debug)]
 pub struct InBid{
-    playerId:String,
-    playerIds:Vec<String>,
-    timeRemaining:i32,
-    bidHistory:Vec<(String,u8)>,
-    bidState:InBidState,
+    pub playerId:String,
+    pub playerIds:Vec<String>,
+    pub timeRemaining:i32,
+    pub cards:Vec<String>,
+    pub bidHistory:Vec<(String,u8)>,
+    pub bidState:InBidState,
 }
 // /bid responce
 #[derive(Serialize,Debug)]
 pub struct Bid{
-    bid:u8,
+    pub bid:u8,
 }
 // /chooseTrump payload
 #[derive(Deserialize,Debug)]
 pub struct ChooseTrumpSuit{
-    playerId:String,
-    playerIds:Vec<String>,
-    timeRemaining:i32,
-    cards:Vec<String>,
-    bidHistory:Vec<(String,u8)>,
+    pub playerId:String,
+    pub playerIds:Vec<String>,
+    pub timeRemaining:i32,
+    pub cards:Vec<String>,
+    pub bidHistory:Vec<(String,u8)>,
 }
 //choosetrump response
 #[derive(Serialize,Debug)]
 pub struct TrumpSuit{
-    suit:String,
+    pub suit:String,
 }
 // plAY PAYLOAD
 #[derive(Debug,Deserialize)]
@@ -48,14 +44,14 @@ pub enum TrumpSuitEnum {
 }
 #[derive(Deserialize,Debug)]
 pub struct Team{
-    players:Vec<String>,
-    bid:u8,
-    won:u8,
+    pub players:Vec<String>,
+    pub bid:u8,
+    pub won:u8,
 }
 #[derive(Deserialize,Debug)]
 pub struct TrumpRevealed{
-    hand:u8,
-    playerId:String,
+    pub hand:u8,
+    pub playerId:String,
 }
 #[derive(Debug,Deserialize)]
 #[serde(untagged)]
@@ -65,30 +61,30 @@ pub enum TrumpRevealEnum {
 }
 #[derive(Deserialize,Debug)]
 pub struct Play{
-    playerId:String,
-    playerIds:Vec<String>,
-    timeRemaining:i32,
-    teams:Vec<Team>,
-    cards:Vec<String>,
-    bidHistory:Vec<(String,u8)>,
-    played:Vec<String>,
-    handsHistory: Vec<(String,Vec<String>,String)>,
-    trumpSuit:TrumpSuitEnum,
-    trumpRevealed:TrumpRevealEnum,
+    pub playerId:String,
+    pub playerIds:Vec<String>,
+    pub timeRemaining:i32,
+    pub teams:Vec<Team>,
+    pub cards:Vec<String>,
+    pub bidHistory:Vec<(String,u8)>,
+    pub played:Vec<String>,
+    pub handsHistory: Vec<(String,Vec<String>,String)>,
+    pub trumpSuit:TrumpSuitEnum,
+    pub trumpRevealed:TrumpRevealEnum,
 }
 // play responce
 #[derive(Serialize,Debug)]
 pub struct ThrowCard{
-    card:String,
+    pub card:String,
 }
 // if you have the request trumo reveal
 #[derive(Serialize,Debug)]
 pub struct RevealTrump{
-    revealTrump:bool,
+    pub revealTrump:bool,
 }
 // reveal trump and throw card at once
 #[derive(Serialize,Debug)]
 pub struct RevealTrumpAndThrowCard{
-    revealTrump:bool,
-    card:String,
+    pub revealTrump:bool,
+    pub card:String,
 }

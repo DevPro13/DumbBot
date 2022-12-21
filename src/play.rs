@@ -19,7 +19,7 @@ fn reveal_trump()->RevealTrump{
         revealTrump:true,
     }
 }
-fn reveal_trump_play_card(optimal_card:String)->{
+fn reveal_trump_play_card(optimal_card:String)->RevealTrumpAndThrowCard{
     RevealTrumpAndThrowCard{
         revealTrump:true,
         card:optimal_card,
@@ -37,22 +37,26 @@ fn get_bid_winnerid(bidhistory:&Vec<(String,u8)>)->String{
     }
     winner_id
 }
+fn make_knowledge(knowledge:&mut Knowledge,handshistory){
+    for i in handshistory{
+        *knowledge.update_knowledge(i.1);
+    }
+}
+fn get_trump_suit()
 fn play_game(payload:&Play)-><T>{
-    let mut knowledge=Knowledge::init(&mut moduleinrust::Knowledge::default());
+    let mut knowledge=Knowledge::init(&mut moduleinrust::Knowledge::default());//init knowledge
     let Play(trumpSuit:trumpsuit,trumpRevealed:trumprevealed,..)=payload;
-    if payload.handsHistory.len()=0 || payload.cards.len()==8{
-        //flag this is new game or old game
-        is_new_game=true;
+
+    if payload.handsHistory.len()!=0 || payload.cards.len()!=8{
+        //update knowledge
+        make_knowledge(&mut knowledge, &payload.handsHistory);
     }
-    else{
-        is_new_game=false;
-    }
-    /*yedi naya game ho bhaney knowlede feri initialize huna paryo.. else update knowledge */
+  //make knowledge of opponenet and partner player
     let bid_winner_playerid=get_bid_winnerid(&payload.bidHistory);
     //if its your turn throw card
     if payload.played.len()==0{
         //your 1st turn
-        return make_first_move();
+        return make_first_move(&payload.cards,&knowledge);
 
     }
     let suit:char=payload.played[0].as_bytes()[1] as char;//basically this hand suit

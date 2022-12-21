@@ -2,6 +2,7 @@ use std::collections::{
     HashMap,
     HashSet,
 };
+use super::choosetrump::Trump;
 pub struct Knowledge{
     //this will give the knowledge of played and un-played cards of respective suits
     //each variable represent a suit of 1 byte
@@ -95,6 +96,59 @@ const cards=HashMap::from([
                 '7':(8,0),
     ]);
     fn give_sum_of_points(board)->u8{
+        0
 
     }
 }
+/* 
+fn make_first_move(cards:&Vec<String>,knowledge:&Knowledge){
+    let mut trump=Trump::init_trump_count(&mut moduleinrust::Trump::default());
+    if *cards.len()>1{
+        trump.count_suits(&cards);
+    }
+    //initially try to get points
+    //throw 9 if you have J also
+    if *knowledge.check_played_card("JS".to_string()) || *cards.contains(&"JS".to_string()) && *cards.contains(&"9S".to_string()) && trump_not_revealed{
+        return "9S".to_string();
+    }
+    if *cards.contains(&"JD".to_string()) && *cards.contains(&"9D".to_string()) && trump_not_revealed{
+        return "9D".to_string();
+    }
+    if *cards.contains(&"JH".to_string()) && *cards.contains(&"9H".to_string()) && trump_not_revealed{
+        return "9H".to_string();
+    }
+    if *cards.contains(&"JC".to_string()) && *cards.contains(&"9C".to_string()) && trump_not_revealed{
+        return "9C".to_string();
+    }
+    //throw J
+    if *cards.contains(&"JS".to_string() && trump_not_revealed){
+        return "JS".to_string();
+    }
+    if *cards.contains(&"JC".to_string() && trump_not_revealed){
+        return "JC".to_string();
+    }
+    if *cards.contains(&"JH".to_string() && trump_not_revealed){
+        return "JH".to_string();
+    }
+    if *cards.contains(&"JD".to_string() && trump_not_revealed){
+        return "JD".to_string();
+    }
+   //try to remove low suit cards if you are bid winner 
+
+    //throw 9 card if J already played and trump
+
+    if *knowledge.check_played_card("JS".to_string()) && trump_not_revealed{
+        return "9S"
+    }
+    //try to remove card with low suits
+    
+
+    //if trump revealed
+
+}
+fn make_second_move(){
+    //see if the cards has high rank
+    //see if you have the high rank card
+    //
+}
+*/
