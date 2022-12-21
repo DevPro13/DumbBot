@@ -1,18 +1,18 @@
 use serde::{Serialize,Deserialize};
 // /hi responce
-#derive[(Serialize,Debug)]
+#[derive(Serialize,Debug)]
 pub struct Hello{
     value:String,
 }
 // /bid payload
-#derive[(Derialize,Debug)]
+#[derive(Derialize,Debug)]
 pub struct InBidState{
     defenderId:String,
     challengerId:String,
     defenderBid:u8,
     challengerBid:u8,
 }
-#derive[(Desrialize,Debug)]
+#[derive(Desrialize,Debug)]
 pub struct InBid{
     playerId:String,
     playerIds:Vec<String>,
@@ -21,12 +21,12 @@ pub struct InBid{
     bidState:InBidState,
 }
 // /bid responce
-#derive[(Serialize,Debug)]
+#[derive(Serialize,Debug)]
 pub struct Bid{
     bid:u8,
 }
 // /chooseTrump payload
-#derive[(Deserialize,Debug)]
+#[derive(Deserialize,Debug)]
 pub struct ChooseTrumpSuit{
     playerId:String,
     playerIds:Vec<String>,
@@ -35,7 +35,7 @@ pub struct ChooseTrumpSuit{
     bidHistory:Vec<(String,u8)>,
 }
 //choosetrump response
-#derive[(Serialize,Debug)]
+#[derive(Serialize,Debug)]
 pub struct TrumpSuit{
     suit:String,
 }
@@ -64,7 +64,7 @@ pub enum TrumpRevealEnum {
     trumpRevealed(bool),
 }
 #[derive(Deserialize,Debug)]
-pub struct Play{//T bool or string, U--> bool or Object
+pub struct Play{
     playerId:String,
     playerIds:Vec<String>,
     timeRemaining:i32,
@@ -77,17 +77,17 @@ pub struct Play{//T bool or string, U--> bool or Object
     trumpRevealed:TrumpRevealEnum,
 }
 // play responce
-#derive[(Serialize,Debug)]
+#[derive(Serialize,Debug)]
 pub struct ThrowCard{
     card:String,
 }
 // if you have the request trumo reveal
-#derive[(Serialize,Debug)]
+#[derive(Serialize,Debug)]
 pub struct RevealTrump{
     revealTrump:bool,
 }
 // reveal trump and throw card at once
-#derive[(Serialize,Debug)]
+#[derive(Serialize,Debug)]
 pub struct RevealTrumpAndThrowCard{
     revealTrump:bool,
     card:String,
