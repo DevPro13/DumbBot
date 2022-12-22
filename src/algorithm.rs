@@ -3,6 +3,7 @@ use std::collections::{
     HashSet,
 };
 use super::choosetrump::Trump;
+#[derive(Default)]
 pub struct Knowledge{
     //this will give the knowledge of played and un-played cards of respective suits
     //each variable represent a suit of 1 byte
@@ -15,7 +16,7 @@ pub struct Knowledge{
     S:u8,//for cards of Spades suit
 }
 impl Knowledge{
-    fn init(&mut self)->Knowledge{
+    pub fn init(&mut self)->Knowledge{
         Knowledge{
             //initially all cards are not played
             H:255,
@@ -24,7 +25,7 @@ impl Knowledge{
             S:255,
         }
     }
-    fn card_mapto_bitpos(card:char)->u8{
+    fn card_mapto_bitpos(&self,card:char)->u8{
         match card{
             'J'=>128,
             '9'=>64,
@@ -40,50 +41,51 @@ impl Knowledge{
                 },
         }
     }
-    fn update_knowledge(&mut self,cards:&Vec<String>){
+    pub fn update_knowledge(&mut self,cards:&Vec<String>){
         for card in cards{
             let suit=card.as_bytes()[1] as char;
             match suit {
-                'H'=>self.H^=card_mapto_bitpos(card.as_bytes()[0] as char),
-                'C'=>self.C^=card_mapto_bitpos(card.as_bytes()[0] as char),
-                'D'=>self.D^=card_mapto_bitpos(card.as_bytes()[0] as char),
-                'S'=>self.S^=card_mapto_bitpos(card.as_bytes()[0] as char),
+                'H'=>self.H^=self.card_mapto_bitpos(card.as_bytes()[0] as char),
+                'C'=>self.C^=self.card_mapto_bitpos(card.as_bytes()[0] as char),
+                'D'=>self.D^=self.card_mapto_bitpos(card.as_bytes()[0] as char),
+                'S'=>self.S^=self.card_mapto_bitpos(card.as_bytes()[0] as char),
                 _=>println!("No matched suit"),
             }
         }
     }
-    fn check_played_card(card:String)->bool{
+    pub fn check_played_card(&self,card:String)->bool{
         //this funtion takes a card eg "JS" as input and tell it is played or not
         let suit=card.as_bytes()[1] as char;
         match suit {
             'H'=>{
-                if (self.H & card_mapto_bitpos(card.as_bytes()[0] as char))!=0{
+                if (self.H & self.card_mapto_bitpos(card.as_bytes()[0] as char))!=0{
                     return true;
                 }
                 false
             },
             'C'=>{
-                if (self.C & card_mapto_bitpos(card.as_bytes()[0] as char))!=0{
+                if (self.C & self.card_mapto_bitpos(card.as_bytes()[0] as char))!=0{
                     return true;
                 }
                 false
             },
             'D'=>{
-                if (self.D & card_mapto_bitpos(card.as_bytes()[0] as char))!=0{
+                if (self.D & self.card_mapto_bitpos(card.as_bytes()[0] as char))!=0{
                     return true;
                 }
                 false
             },
             'S'=>{
-                if (self.S & card_mapto_bitpos(card.as_bytes()[0] as char))!=0{
+                if (self.S & self.card_mapto_bitpos(card.as_bytes()[0] as char))!=0{
                     return true;
                 }
                 false
             },
+            _=>false,
         }
     }
 }
-pub mod make_optimal_move{
+/*pub mod make_optimal_move{
 const cards=HashMap::from([
                 //each suit cards ranks and points
                 'J':(1,3),
@@ -100,7 +102,7 @@ const cards=HashMap::from([
 
     }
 }
-/* 
+
 fn make_first_move(cards:&Vec<String>,knowledge:&Knowledge){
     let mut trump=Trump::init_trump_count(&mut moduleinrust::Trump::default());
     if *cards.len()>1{

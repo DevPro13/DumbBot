@@ -5,6 +5,9 @@ use self::bid::get_bid;
 use self::choosetrump::get_trump_suit;
 mod hi;
 use self::hi::Hello;
+mod play;
+mod algorithm;
+//use self::play::play_game;
 //use std::time::Instant;
 use actix_cors::Cors;
 use actix_web::{get, 
@@ -62,16 +65,11 @@ async fn trump_req(payload: web::Json<ChooseTrumpPayload>) -> Result<String> {
 #[post("/play")]
 async fn play_card(payload: web::Json<Play>) -> Result<String> {
     println!("{:?}",payload);
-    //let web::Json(Play:play_payload)=payload;
+    let web::Json(Play)=payload;
     // let start = Instant::now();
-    //et player_move = play::get_move(&payload);
+    let play_card_body=play::play_game(&Play);
     // let duration = start.elapsed();
-    // println!("Get move took {:?}", duration);
-    //let play_card=play::play_game(&payload.Play);//get object of playresponce
-    // Serialize it to a JSON string.
-    //let body = serde_json::to_string(&play_card).unwrap();
-    let body=r#"{"suit"}:"JH""#;
-    Ok(format!("{}",body))
+    Ok(format!("{}",play_card_body))
 }
 
 #[actix_web::main]
