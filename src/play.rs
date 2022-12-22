@@ -1,8 +1,5 @@
 use crate::api_rust_data::{
     Play,
-    ThrowCard,
-    RevealTrump,
-   RevealTrumpAndThrowCard,
 };
 use crate::algorithm::Knowledge;
 fn throwcard(optimal_card:String)->String{

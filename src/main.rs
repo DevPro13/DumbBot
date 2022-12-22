@@ -25,10 +25,7 @@ use self::api_rust_data::{
                             Bid,//bid responce
                             ChooseTrumpSuit as ChooseTrumpPayload,
                             TrumpSuit,//choose trump responce
-                            Play,//play payload
-                            //play responses
-                            RevealTrump,
-                            ThrowCard,
+                            Play,//for play payload
 };
 #[get("/hi")]
 async fn hi_req() ->impl Responder {
@@ -59,7 +56,6 @@ async fn trump_req(payload: web::Json<ChooseTrumpPayload>) -> Result<String> {
     let trump_suiit =get_trump_suit(&ChooseTrumpPayload.cards);//get object of trumpResponce
     // Serialize it to a JSON string.
     let body = serde_json::to_string(&trump_suiit).unwrap();
-    //let body=r#"{"suit"}:"H""#;
     Ok(format!("{}",body))
 }
 #[post("/play")]
@@ -86,18 +82,3 @@ async fn main() -> std::io::Result<()> {
     .run()
     .await
 }
-
-/*
-Json(InBid { playerId: "A2", playerIds: ["A1", "B1", "A2", "B2"], timeRemaining: 1000, cards: ["JS", "TS", "KH", "9C"], bidHistory: [("A1", 16), ("B1", 0)], bidState: InBidState { defenderId: "A1", challengerId: "B1", defenderBid: 16, challengerBid: 17 } })
-"{\"bid\":18}"
-Json(InBid { playerId: "A2", playerIds: ["A1", "B1", "A2", "B2"], timeRemaining: 1000, cards: ["JS", "TS", "KH", "9C"], bidHistory: [("A1", 16), ("B1", 0)], bidState: InBidState { defenderId: "A1", challengerId: "B1", defenderBid: 16, challengerBid: 17 } })
-"{\"bid\":18}"
-
-
-
-Json(InBid { playerId: "A2", playerIds: ["A1", "B1", "A2", "B2"], timeRemaining: 1000, cards: ["JS", "TS", "KH", "9C"], bidHistory: [("A1", 16), ("B1", 0)], bidState: InBidState { defenderId: "A1", challengerId: "B1", defenderBid: 16, challengerBid: 17 } })
-Json(ChooseTrumpSuit { playerId: "A2", playerIds: ["A1", "B1", "A2", "B2"], timeRemaining: 1000, cards: ["JS", "TS", "KH", "9C"], bidHistory: [("A1", 16), ("B1", 0)] })
-Json(Play { playerId: "A2", playerIds: ["A1", "B1", "A2", "B2"], timeRemaining: 1500, teams: [Team { players: ["A1", "A2"], bid: 17, won: 0 }, Team { players: ["B1", "B2"], bid: 17, won: 4 }], cards: ["JS", "TS", "KH", "9C", "JD", "7D", "8D"], bidHistory: [("A1", 16), ("B1", 17), ("A1", 17), ("B1", 0), ("A2", 0), ("B2", 0)], played: ["9S", "1S", "8S"], handsHistory: [("A1", ["7H", "1H", "8H", "JH"], "B2")], trumpSuit: SuitShown(false), trumpRevealed: trumpRevealed(false) })
-
-
-*/

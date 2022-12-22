@@ -72,19 +72,3 @@ pub struct Play{
     pub trumpSuit:TrumpSuitEnum,
     pub trumpRevealed:TrumpRevealEnum,
 }
-// play responce
-#[derive(Serialize,Debug)]
-pub struct ThrowCard{
-    pub card:String,
-}
-// if you have the request trumo reveal
-#[derive(Serialize,Debug)]
-pub struct RevealTrump{
-    pub revealTrump:bool,
-}
-// reveal trump and throw card at once
-#[derive(Serialize,Debug)]
-pub struct RevealTrumpAndThrowCard{
-    pub revealTrump:bool,
-    pub card:String,
-}
