@@ -63,12 +63,10 @@ async fn trump_req(payload: web::Json<ChooseTrumpPayload>) -> Result<String> {
 async fn play_card(payload: web::Json<Play>) -> Result<String> {
     println!("{:?}",payload);
     let web::Json(Play)=payload;
-    let body=play::reveal_trump();
-    println!("{}",body);
     // let start = Instant::now();
-    //let play_card_body=play::play_game(&Play);
+    let play_card_body=play::play_game(&Play);
     // let duration = start.elapsed();
-    Ok(body)
+    Ok(play_card_body)
 }
 
 #[actix_web::main]
