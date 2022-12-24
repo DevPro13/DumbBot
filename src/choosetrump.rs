@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use crate::TrumpSuit;
 #[derive(Clone,Default)]
 pub struct Trump{
     suits:HashMap<String,u8>,
@@ -45,8 +46,8 @@ pub fn gettrumpsuit(&self)->String{
  }
 
 }
-pub fn get_trump_suit(cards:&Vec<String>)->String{
+pub fn get_trump_suit(cards:&Vec<String>)->TrumpSuit{
     let mut trump=Trump::init_trump_count(&mut Trump::default());
     trump.countsuits(&cards);
-    trump.gettrumpsuit()
+    TrumpSuit{suit:trump.gettrumpsuit(),}
 }

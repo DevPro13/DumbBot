@@ -2,23 +2,23 @@ use crate::api_rust_data::{
     Play,
 };
 use crate::algorithm::Knowledge;
-fn throwcard(optimal_card:String)->String{
+pub fn throwcard(optimal_card:String)->String{
     format!(r#"{{
-       "card":{}, 
+       "card":"{}"
     }}"#,optimal_card)
 }
-fn reveal_trump()->String{
+pub fn reveal_trump()->String{
     format!(r#"{{
-        "revealTrump":{},
+        "revealTrump":{}
     }}"#,true)
 }
-fn reveal_trump_play_card(optimal_card:String)->String{
+pub fn reveal_trump_play_card(optimal_card:String)->String{
     format!(r#"{{
         "revealTrump":{},
-        "card":{},
+        "card":"{}"
     }}"#,true,optimal_card)
 }
-fn get_bid_winnerid(bidhistory:&Vec<(String,u8)>)->String{
+pub fn get_bid_winnerid(bidhistory:&Vec<(String,u8)>)->String{
     //get bid winner player id
     let mut bid=0;
     let mut winner_id=String::new();

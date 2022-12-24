@@ -1,6 +1,7 @@
 mod choosetrump;
 mod api_rust_data;
 mod bid;
+//mod test;
 use self::bid::get_bid;
 use self::choosetrump::get_trump_suit;
 mod hi;
@@ -40,7 +41,7 @@ async fn hi_req() ->impl Responder {
 
 #[post("/bid")]
 async fn bid_req(payload: web::Json<BidPayload>) -> Result<String> {
-    //println!("{:?}",payload);
+    println!("{:?}",payload);
     let web::Json(BidPayload)=payload;
     //println!("{:?}",bid_payload);
     let obtained_bid:Bid=get_bid(&BidPayload);//get object of Bidresponce
@@ -53,19 +54,21 @@ async fn bid_req(payload: web::Json<BidPayload>) -> Result<String> {
 async fn trump_req(payload: web::Json<ChooseTrumpPayload>) -> Result<String> {
     println!("{:?}",payload);
     let web::Json(ChooseTrumpPayload)=payload;
-    let trump_suiit =get_trump_suit(&ChooseTrumpPayload.cards);//get object of trumpResponce
+    let trump_suit =get_trump_suit(&ChooseTrumpPayload.cards);//get object of trumpResponce
     // Serialize it to a JSON string.
-    let body = serde_json::to_string(&trump_suiit).unwrap();
+    let body = serde_json::to_string(&trump_suit).unwrap();
     Ok(format!("{}",body))
 }
 #[post("/play")]
 async fn play_card(payload: web::Json<Play>) -> Result<String> {
     println!("{:?}",payload);
     let web::Json(Play)=payload;
+    let body=play::reveal_trump();
+    println!("{}",body);
     // let start = Instant::now();
-    let play_card_body=play::play_game(&Play);
+    //let play_card_body=play::play_game(&Play);
     // let duration = start.elapsed();
-    Ok(format!("{}",play_card_body))
+    Ok(body)
 }
 
 #[actix_web::main]
