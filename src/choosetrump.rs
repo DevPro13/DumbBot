@@ -2,47 +2,57 @@ use std::collections::HashMap;
 use crate::TrumpSuit;
 #[derive(Clone,Default)]
 pub struct Trump{
-    suits:HashMap<String,u8>,
+    suits:HashMap<char,u8>,
 }
 impl Trump{
  pub fn init_trump_count(&mut self)->Trump{
  Trump{ suits:HashMap::from([
-        ("D".to_string(),0),
-        ("H".to_string(),0),
-        ("S".to_string(),0),
-        ("C".to_string(),0),
+        ('D',0),
+        ('H',0),
+        ('S',0),
+        ('C',0),
      ]),
     }
 }
     pub fn countsuits(&mut self,cards:&Vec<String>){
         for  i in cards{
             let k=i.as_bytes()[1] as char;
-            self.suits.insert(k.to_string(),self.suits[&k.to_string()]+1);
+            self.suits.insert(k,self.suits[&k]+1);
         }
     }
-    pub fn ret_counted_suits(&self)->HashMap<String,u8>{
+    pub fn ret_counted_suits(&self)->HashMap<char,u8>{
         self.suits.clone()
     }
     pub fn display(&self){
     println!("{:?}",self.suits);
     }
 pub fn gettrumpsuit(&self)->String{
-    let mut cards_with_only_one_suits:Vec<String>=Vec::new();
+    let mut cards_with_only_one_suits:Vec<char>=Vec::new();
     for key in self.suits.keys(){
         if self.suits[key]==1{
-        cards_with_only_one_suits.push(key.to_string());
+        cards_with_only_one_suits.push(*key);
         }
         if self.suits[key]>=2{
-        return (&key).to_string();
+        return key.to_string();
         }
     }
-    cards_with_only_one_suits[0].clone()
+    cards_with_only_one_suits[0].clone().to_string()
  }
  pub fn check_if_cards_has_three_same_suits(&self)->bool{
-    true
+    for key in self.suits.keys(){
+        if self.suits[key]==3{
+            return true;
+        }
+    }
+    false
  }
  pub fn check_if_cards_has_two_same_suits(&self)->bool{
-    true
+    for key in self.suits.keys(){
+        if self.suits[key]==2{
+            return true;
+        }
+    }
+    false
  }
 
 }

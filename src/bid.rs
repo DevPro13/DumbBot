@@ -2,19 +2,17 @@ use std::collections::HashMap;
 use super::choosetrump::Trump;
 #[derive(Clone,Default)]
 pub struct CountHighestRankCards{
-    cards:HashMap<String,u8>,
+    cards:HashMap<char,u8>,
 }
-
-
 use super::api_rust_data::{InBid,Bid,InBidState};
 impl CountHighestRankCards{
     pub fn init_count(&mut self)->CountHighestRankCards{
         CountHighestRankCards{
             cards:HashMap::from([
-                ("J".to_string(),0),
-                ("9".to_string(),0),
-                ("T".to_string(),0),
-                ("1".to_string(),0),
+                ('J',0),
+                ('9',0),
+                ('T',0),
+                ('1',0),
             ]),
         }
     }
@@ -22,29 +20,29 @@ impl CountHighestRankCards{
         for  i in cards{
             let k=i.as_bytes()[0] as char;
             if k=='J' || k=='9'||k=='T'||k=='1'{
-                self.cards.insert(k.to_string(),self.cards[&k.to_string()]+1);
+                self.cards.insert(k,self.cards[&k]+1);
             }
         }
     }
-    fn check_atleast_one_present(&self,card:String)->bool{
+    fn check_atleast_one_present(&self,card:char)->bool{
         if self.cards[&card]>0{
             return true;
         }
         false
     }
-    fn check_atleast_two_present(&self,card:String)->bool{
+    fn check_atleast_two_present(&self,card:char)->bool{
         if self.cards[&card]>0{
             return true;
         }
         false
     }
-    fn check_atleast_three_present(&self,card:String)->bool{
+    fn check_atleast_three_present(&self,card:char)->bool{
         if self.cards[&card]>0{
             return true;
         }
         false
     }
-    fn return_total_cards_of_given_rank(&self,card:String)->u8{
+    fn return_total_cards_of_given_rank(&self,card:char)->u8{
         self.cards[&card]
     }
 }
@@ -72,55 +70,55 @@ pub fn get_bid(bid_payload:&InBid)->Bid{
             return Bid{bid:0,};
         }
        //if this true bid more than challenger bid
-        if (suits.check_if_cards_has_three_same_suits()||suits.check_if_cards_has_two_same_suits()) && my_high_rank_cards.check_atleast_one_present("J".to_string())&& my_high_rank_cards.check_atleast_one_present("9".to_string()){
+        if (suits.check_if_cards_has_three_same_suits()||suits.check_if_cards_has_two_same_suits()) && my_high_rank_cards.check_atleast_one_present('J')&& my_high_rank_cards.check_atleast_one_present('9'){
             return Bid{
                 bid:in_bid_state.challengerBid,
             };
         }
         //else bid equal
-        if suits.check_if_cards_has_two_same_suits() && my_high_rank_cards.check_atleast_one_present("J".to_string())&& in_bid_state.challengerBid<18{
+        if suits.check_if_cards_has_two_same_suits() && my_high_rank_cards.check_atleast_one_present('J')&& in_bid_state.challengerBid<18{
             return Bid{
                 bid:in_bid_state.challengerBid,
             };
         }
         //atleast 3 same suit  or 2 same suit with one J or 2 9
-    if (suits.check_if_cards_has_three_same_suits()&&in_bid_state.defenderBid<17)||(suits.check_if_cards_has_two_same_suits()&&(my_high_rank_cards.check_atleast_one_present("J".to_string())||my_high_rank_cards.check_atleast_two_present("9".to_string()))){
+    if (suits.check_if_cards_has_three_same_suits()&&in_bid_state.defenderBid<17)||(suits.check_if_cards_has_two_same_suits()&&(my_high_rank_cards.check_atleast_one_present('J')||my_high_rank_cards.check_atleast_two_present('9'))){
         return Bid{
             bid:in_bid_state.challengerBid,
         };
     }
    //if this true bid more than challenger bid
-    if (suits.check_if_cards_has_three_same_suits()||suits.check_if_cards_has_two_same_suits()) && my_high_rank_cards.check_atleast_one_present("J".to_string())&& my_high_rank_cards.check_atleast_one_present("9".to_string()){
+    if (suits.check_if_cards_has_three_same_suits()||suits.check_if_cards_has_two_same_suits()) && my_high_rank_cards.check_atleast_one_present('J')&& my_high_rank_cards.check_atleast_one_present('9'){
         return Bid{
             bid:in_bid_state.challengerBid,
         };
     }
     //yedi atleast duita js cards chha bhaney make challenge bid
-    if my_high_rank_cards.check_atleast_two_present("J".to_string())&& (my_high_rank_cards.check_atleast_two_present("9".to_string())||my_high_rank_cards.check_atleast_one_present("1".to_string())||my_high_rank_cards.check_atleast_one_present("T".to_string())) && in_bid_state.defenderBid<18{
+    if my_high_rank_cards.check_atleast_two_present('J')&& (my_high_rank_cards.check_atleast_two_present('9')||my_high_rank_cards.check_atleast_one_present('1')||my_high_rank_cards.check_atleast_one_present('T')) && in_bid_state.defenderBid<18{
         return Bid{
             bid:in_bid_state.challengerBid,
         };
     }
     //if atleast 2 J and 2 same suits bids
-    if my_high_rank_cards.check_atleast_two_present("J".to_string()) && suits.check_if_cards_has_two_same_suits() && in_bid_state.defenderBid<18{
+    if my_high_rank_cards.check_atleast_two_present('J') && suits.check_if_cards_has_two_same_suits() && in_bid_state.defenderBid<18{
         return Bid{
             bid:in_bid_state.challengerBid,
         };
     }
      //if atleast 1 J and 1 9 and two same suits bids
-     if my_high_rank_cards.check_atleast_one_present("J".to_string())&&my_high_rank_cards.check_atleast_one_present("9".to_string())  && (suits.check_if_cards_has_two_same_suits()||suits.check_if_cards_has_three_same_suits() ) && in_bid_state.defenderBid<18{
+     if my_high_rank_cards.check_atleast_one_present('J')&&my_high_rank_cards.check_atleast_one_present('9')  && (suits.check_if_cards_has_two_same_suits()||suits.check_if_cards_has_three_same_suits() ) && in_bid_state.defenderBid<18{
         return Bid{
             bid:in_bid_state.challengerBid,
         };
     }
     //if two or more same suits and same bid less than or equals 17
-    if in_bid_state.defenderBid<17&&suits.check_if_cards_has_three_same_suits()||(suits.check_if_cards_has_two_same_suits() && (my_high_rank_cards.check_atleast_one_present("J".to_string())||my_high_rank_cards.check_atleast_two_present("9".to_string()))){
+    if in_bid_state.defenderBid<17&&suits.check_if_cards_has_three_same_suits()||(suits.check_if_cards_has_two_same_suits() && (my_high_rank_cards.check_atleast_one_present('J')||my_high_rank_cards.check_atleast_two_present('9'))){
         return Bid{
             bid:in_bid_state.challengerBid,
         };
     }
     //if atleast 2 same suits and 2 J 1 9 1 T or 1
-    if (suits.check_if_cards_has_two_same_suits()||suits.check_if_cards_has_three_same_suits())&&(my_high_rank_cards.check_atleast_two_present("J".to_string())&&my_high_rank_cards.check_atleast_one_present("9".to_string()))&&(my_high_rank_cards.check_atleast_one_present("1".to_string())||my_high_rank_cards.check_atleast_one_present("T".to_string())){
+    if (suits.check_if_cards_has_two_same_suits()||suits.check_if_cards_has_three_same_suits())&&(my_high_rank_cards.check_atleast_two_present('J')&&my_high_rank_cards.check_atleast_one_present('9'))&&(my_high_rank_cards.check_atleast_one_present('1')||my_high_rank_cards.check_atleast_one_present('T')){
         return Bid{
             bid:in_bid_state.challengerBid,
         };
@@ -136,43 +134,43 @@ pub fn get_bid(bid_payload:&InBid)->Bid{
         return Bid{bid:0,};
     }
     //atleast 3 same suit  or 2 same suit with one J or 2 9
-    if (suits.check_if_cards_has_three_same_suits()&&in_bid_state.defenderBid<17)||(suits.check_if_cards_has_two_same_suits()&&(my_high_rank_cards.check_atleast_one_present("J".to_string())||my_high_rank_cards.check_atleast_two_present("9".to_string()))){
+    if (suits.check_if_cards_has_three_same_suits()&&in_bid_state.defenderBid<17)||(suits.check_if_cards_has_two_same_suits()&&(my_high_rank_cards.check_atleast_one_present('J')||my_high_rank_cards.check_atleast_two_present('9'))){
         return Bid{
             bid:in_bid_state.defenderBid+1,
         };
     }
    //if this true bid more than challenger bid
-    if (suits.check_if_cards_has_three_same_suits()||suits.check_if_cards_has_two_same_suits()) && my_high_rank_cards.check_atleast_one_present("J".to_string())&& my_high_rank_cards.check_atleast_one_present("9".to_string()){
+    if (suits.check_if_cards_has_three_same_suits()||suits.check_if_cards_has_two_same_suits()) && my_high_rank_cards.check_atleast_one_present('J')&& my_high_rank_cards.check_atleast_one_present('9'){
         return Bid{
             bid:in_bid_state.defenderBid+1,
         };
     }
     //yedi atleast duita js cards chha bhaney make challenge bid
-    if my_high_rank_cards.check_atleast_two_present("J".to_string())&& (my_high_rank_cards.check_atleast_two_present("9".to_string())||my_high_rank_cards.check_atleast_one_present("1".to_string())||my_high_rank_cards.check_atleast_one_present("T".to_string())) && in_bid_state.defenderBid<18{
+    if my_high_rank_cards.check_atleast_two_present('J')&& (my_high_rank_cards.check_atleast_two_present('9')||my_high_rank_cards.check_atleast_one_present('1')||my_high_rank_cards.check_atleast_one_present('T')) && in_bid_state.defenderBid<18{
         return Bid{
             bid:in_bid_state.defenderBid+1,
         };
     }
     //if atleast 2 J and 2 same suits bids
-    if my_high_rank_cards.check_atleast_two_present("J".to_string()) && suits.check_if_cards_has_two_same_suits() && in_bid_state.defenderBid<18{
+    if my_high_rank_cards.check_atleast_two_present('J') && suits.check_if_cards_has_two_same_suits() && in_bid_state.defenderBid<18{
         return Bid{
             bid:in_bid_state.defenderBid+1,
         };
     }
      //if atleast 1 J and 1 9 and two same suits bids
-     if my_high_rank_cards.check_atleast_one_present("J".to_string())&&my_high_rank_cards.check_atleast_one_present("9".to_string())  && (suits.check_if_cards_has_two_same_suits()||suits.check_if_cards_has_three_same_suits() ) && in_bid_state.defenderBid<18{
+     if my_high_rank_cards.check_atleast_one_present('J')&&my_high_rank_cards.check_atleast_one_present('9')  && (suits.check_if_cards_has_two_same_suits()||suits.check_if_cards_has_three_same_suits() ) && in_bid_state.defenderBid<18{
         return Bid{
             bid:in_bid_state.defenderBid+1,
         };
     }
     //if two or more same suits and same bid less than or equals 17
-    if in_bid_state.defenderBid<17&&suits.check_if_cards_has_three_same_suits()||(suits.check_if_cards_has_two_same_suits() && (my_high_rank_cards.check_atleast_one_present("J".to_string())||my_high_rank_cards.check_atleast_two_present("9".to_string()))){
+    if in_bid_state.defenderBid<17&&suits.check_if_cards_has_three_same_suits()||(suits.check_if_cards_has_two_same_suits() && (my_high_rank_cards.check_atleast_one_present('J')||my_high_rank_cards.check_atleast_two_present('9'))){
         return Bid{
             bid:in_bid_state.defenderBid+1,
         };
     }
      //if atleast 2 same suits and 2 J 1 9 1 T or 1
-     if (suits.check_if_cards_has_two_same_suits()||suits.check_if_cards_has_three_same_suits())&&(my_high_rank_cards.check_atleast_two_present("J".to_string())&&my_high_rank_cards.check_atleast_one_present("9".to_string()))&&(my_high_rank_cards.check_atleast_one_present("1".to_string())||my_high_rank_cards.check_atleast_one_present("T".to_string())){
+     if (suits.check_if_cards_has_two_same_suits()||suits.check_if_cards_has_three_same_suits())&&(my_high_rank_cards.check_atleast_two_present('J')&&my_high_rank_cards.check_atleast_one_present('9'))&&(my_high_rank_cards.check_atleast_one_present('1')||my_high_rank_cards.check_atleast_one_present('T')){
         return Bid{
             bid:in_bid_state.defenderBid+1,
         };
@@ -186,11 +184,11 @@ pub fn get_bid(bid_payload:&InBid)->Bid{
 ///bidding decisions logics
 fn can_get_max_bid(my_high_rank_cards:&CountHighestRankCards,suits:&Trump)->bool{
     //if i have atleast 1 1 J and 9 cards.. I should bet minimum
-    if my_high_rank_cards.check_atleast_one_present("J".to_string())&& my_high_rank_cards.check_atleast_one_present("9".to_string()){
+    if my_high_rank_cards.check_atleast_one_present('J')&& my_high_rank_cards.check_atleast_one_present('9'){
         return true;
     }
     //if more than 2 9s, bet min
-    if my_high_rank_cards.return_total_cards_of_given_rank("J".to_string())>1 || my_high_rank_cards.return_total_cards_of_given_rank("9".to_string())>1{
+    if my_high_rank_cards.return_total_cards_of_given_rank('J')>1 || my_high_rank_cards.return_total_cards_of_given_rank('9')>1{
         return true;
     }
 //if cards have 3 same suit cards
@@ -198,15 +196,17 @@ fn can_get_max_bid(my_high_rank_cards:&CountHighestRankCards,suits:&Trump)->bool
         return true;
     }
     //if cards has 2 same suit and atleast one 9 or J
-    if suits.check_if_cards_has_two_same_suits() && (my_high_rank_cards.check_atleast_one_present("J".to_string())|| my_high_rank_cards.check_atleast_one_present("9".to_string())){
+    if suits.check_if_cards_has_two_same_suits() && (my_high_rank_cards.check_atleast_one_present('J')|| my_high_rank_cards.check_atleast_one_present('9')){
         return true;
     }
     false
 
 }
+//if must_bid_min(){
+    
+//}
 
-
-/*Json(InBid { playerId: "You-0", playerIds: ["You-0", "Opponent-0", "You-1", "Opponent-1"], timeRemaining: 1500, cards: ["7S", "1C", "JD", "8C"], bidHistory: [], bidState: InBidState { defenderId: "You-0", challengerId: "Opponent-0", defenderBid: 0, challengerBid: 0 } })
+/*Json(InBid { playerId: 'You-0', playerIds: ['You-0', 'Opponent-0', "You-1", "Opponent-1"], timeRemaining: 1500, cards: ["7S", "1C", "JD", "8C"], bidHistory: [], bidState: InBidState { defenderId: "You-0", challengerId: "Opponent-0", defenderBid: 0, challengerBid: 0 } })
 Json(InBid { playerId: "Opponent-0", playerIds: ["You-0", "Opponent-0", "You-1", "Opponent-1"], timeRemaining: 1500, cards: ["1S", "1H", "KD", "KS"], bidHistory: [("You-0", 16)], bidState: InBidState { defenderId: "You-0", challengerId: "Opponent-0", defenderBid: 16, challengerBid: 0 } })
 Json(InBid { playerId: "You-1", playerIds: ["You-0", "Opponent-0", "You-1", "Opponent-1"], timeRemaining: 1500, cards: ["QH", "7H", "QD", "9C"], bidHistory: [("You-0", 16), ("Opponent-0", 0)], bidState: InBidState { defenderId: "You-0", challengerId: "You-1", defenderBid: 16, challengerBid: 0 } })
 Json(InBid { playerId: "Opponent-1", playerIds: ["You-0", "Opponent-0", "You-1", "Opponent-1"], timeRemaining: 1500, cards: ["JS", "TD", "JH", "KH"], bidHistory: [("You-0", 16), ("Opponent-0", 0), ("You-1", 0)], bidState: InBidState { defenderId: "You-0", challengerId: "Opponent-1", defenderBid: 16, challengerBid: 0 } })
