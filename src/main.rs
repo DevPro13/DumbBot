@@ -1,14 +1,12 @@
 mod choosetrump;
 mod api_rust_data;
 mod bid;
-//mod test;
 use self::bid::get_bid;
 use self::choosetrump::get_trump_suit;
 mod hi;
 use self::hi::Hello;
 mod play;
-mod algorithm;
-//use self::play::play_game;
+mod knowledge;
 //use std::time::Instant;
 use actix_cors::Cors;
 use actix_web::{get, 
@@ -64,7 +62,7 @@ async fn play_card(payload: web::Json<Play>) -> Result<String> {
     println!("{:?}",payload);
     let web::Json(Play)=payload;
     // let start = Instant::now();
-    let play_card_body=play::play_game(&Play);
+    let play_card_body=play::play_game::play_card(&Play);
     // let duration = start.elapsed();
     Ok(play_card_body)
 }
@@ -79,7 +77,7 @@ async fn main() -> std::io::Result<()> {
             .service(trump_req)
             .service(play_card)
     })
-    .bind(("127.0.0.1",7878))?
+    .bind(("127.0.0.1",8001))?
     .run()
     .await
 }
