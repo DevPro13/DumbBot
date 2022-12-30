@@ -39,7 +39,7 @@ pub struct TrumpSuit{
 #[derive(Debug,Deserialize)]
 #[serde(untagged)]
 pub enum TrumpSuitEnum {
-    Suit(String),
+    Suit(char),
     SuitShown(bool),
 }
 #[derive(Deserialize,Debug)]
@@ -48,15 +48,15 @@ pub struct Team{
     pub bid:u8,
     pub won:u8,
 }
-#[derive(Deserialize,Debug)]
-pub struct TrumpRevealed{
+#[derive(Deserialize,Debug,Default)]
+pub struct TrumpRevealedBy{
     pub hand:u8,
     pub playerId:String,
 }
 #[derive(Debug,Deserialize)]
 #[serde(untagged)]
 pub enum TrumpRevealEnum {
-    RevealedBy(TrumpRevealed),
+    RevealedBy(TrumpRevealedBy),
     trumpRevealed(bool),
 }
 #[derive(Deserialize,Debug)]
