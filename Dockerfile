@@ -8,4 +8,6 @@ COPY . /smartbot_botmen
 RUN cargo build --release
 
 # Set the default command to run the compiled binary
-CMD ["/app/target/release/my-app"]
+CMD ["/app/target/release/botmen"]
+
+
