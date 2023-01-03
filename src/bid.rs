@@ -202,12 +202,3 @@ fn can_get_max_bid(my_high_rank_cards:&CountHighestRankCards,suits:&Trump)->bool
     false
 
 }
-//if must_bid_min(){
-    
-//}
-
-/*Json(InBid { playerId: 'You-0', playerIds: ['You-0', 'Opponent-0', "You-1", "Opponent-1"], timeRemaining: 1500, cards: ["7S", "1C", "JD", "8C"], bidHistory: [], bidState: InBidState { defenderId: "You-0", challengerId: "Opponent-0", defenderBid: 0, challengerBid: 0 } })
-Json(InBid { playerId: "Opponent-0", playerIds: ["You-0", "Opponent-0", "You-1", "Opponent-1"], timeRemaining: 1500, cards: ["1S", "1H", "KD", "KS"], bidHistory: [("You-0", 16)], bidState: InBidState { defenderId: "You-0", challengerId: "Opponent-0", defenderBid: 16, challengerBid: 0 } })
-Json(InBid { playerId: "You-1", playerIds: ["You-0", "Opponent-0", "You-1", "Opponent-1"], timeRemaining: 1500, cards: ["QH", "7H", "QD", "9C"], bidHistory: [("You-0", 16), ("Opponent-0", 0)], bidState: InBidState { defenderId: "You-0", challengerId: "You-1", defenderBid: 16, challengerBid: 0 } })
-Json(InBid { playerId: "Opponent-1", playerIds: ["You-0", "Opponent-0", "You-1", "Opponent-1"], timeRemaining: 1500, cards: ["JS", "TD", "JH", "KH"], bidHistory: [("You-0", 16), ("Opponent-0", 0), ("You-1", 0)], bidState: InBidState { defenderId: "You-0", challengerId: "Opponent-1", defenderBid: 16, challengerBid: 0 } })
- */
