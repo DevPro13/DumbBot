@@ -10,6 +10,7 @@ pub struct Knowledge{
     D:u8,//for cards of Diamond suit
     S:u8,//for cards of Spades suit
 }
+#[derive(Default)]
 pub struct MyCARDS{
     pub H:Vec<u8>,
     pub C:Vec<u8>,
@@ -59,25 +60,25 @@ impl Knowledge{
         
         match suit {
             'H'=>{
-                if (self.H & key!=0){
+                if self.H & key!=0{
                     return true;
                 }
                 false
             },
             'C'=>{
-                if (self.C & key!=0){
+                if self.C & key!=0{
                     return true;
                 }
                 false
             },
             'D'=>{
-                if (self.D & key!=0){
+                if self.D & key!=0{
                     return true;
                 }
                 false
             },
             'S'=>{
-                if (self.S & key!=0){
+                if self.S & key!=0{
                     return true;
                 }
                 false
@@ -154,7 +155,7 @@ impl Knowledge{
         }
 }
 impl MyCARDS{
-    fn init(&mut self)->MyCARDS{
+    pub fn init(&mut self)->MyCARDS{
         MyCARDS { H:vec![], C: vec![], D:vec![], S:vec![] }
     }
     pub fn update_my_cards(&mut self,cards:&Vec<String>){

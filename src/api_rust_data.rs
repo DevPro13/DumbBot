@@ -48,7 +48,7 @@ pub struct Team{
     pub bid:u8,
     pub won:u8,
 }
-#[derive(Deserialize,Debug,Default)]
+#[derive(Deserialize,Debug,Default,Clone)]
 pub struct TrumpRevealedBy{
     pub hand:u8,
     pub playerId:String,

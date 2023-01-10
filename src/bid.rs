@@ -4,7 +4,7 @@ use super::choosetrump::Trump;
 pub struct CountHighestRankCards{
     cards:HashMap<char,u8>,
 }
-use super::api_rust_data::{InBid,Bid,InBidState};
+use super::api_rust_data::{InBid,Bid};
 impl CountHighestRankCards{
     pub fn init_count(&mut self)->CountHighestRankCards{
         CountHighestRankCards{
