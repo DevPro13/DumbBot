@@ -16,7 +16,7 @@ pub struct MyCARDS{
     pub D:Vec<u8>,
     pub S:Vec<u8>,
 }
-fn card_mapto_bitpos(card:char)->u8{
+pub fn card_mapto_key(card:char)->u8{
     match card{
         'J'=>128,
         '9'=>64,
@@ -46,10 +46,10 @@ impl Knowledge{
         for card in cards{
             let suit=card.as_bytes()[1] as char;
             match suit {
-                'H'=>self.H^=card_mapto_bitpos(card.as_bytes()[0] as char),
-                'C'=>self.C^=card_mapto_bitpos(card.as_bytes()[0] as char),
-                'D'=>self.D^=card_mapto_bitpos(card.as_bytes()[0] as char),
-                'S'=>self.S^=card_mapto_bitpos(card.as_bytes()[0] as char),
+                'H'=>self.H^=card_mapto_key(card.as_bytes()[0] as char),
+                'C'=>self.C^=card_mapto_key(card.as_bytes()[0] as char),
+                'D'=>self.D^=card_mapto_key(card.as_bytes()[0] as char),
+                'S'=>self.S^=card_mapto_key(card.as_bytes()[0] as char),
                 _=>println!("No matched suit"),
             }
         }
@@ -85,10 +85,12 @@ impl Knowledge{
             _=>false,
         }
     }
-        pub fn no_card_greater_than_this_rank_card(&self,key:u8,suit:char)->bool{
+        pub fn card_greater_than_this_rank_card_exist(&self,key:u8,suit:char)->bool{
             fn check(val:u8,key:u8)->bool{
+                //if true... other cards greater than this card exist
                 if key==128{
                     return false;
+                    //this is the highest rank card
                 }
                 if key==64{
                     return val&128==128;
@@ -115,7 +117,7 @@ impl Knowledge{
                 _=>false,
             }
         }
-        fn get_total_cards_not_played(&self,suit:char)->u8{
+        pub fn get_total_cards_not_played(&self,suit:char)->u8{
             let mut count:u8 =0;
            let cards:Vec<u8>=vec![128,64,32,16,8,4,2,1];
            for i in cards.iter(){
@@ -126,17 +128,27 @@ impl Knowledge{
            count
         }
         pub fn no_possibility_of_trump_reveal(&self,suit:char,this_suit_my_total_cards:u8)->bool{
-            fn check(suit:char,this_suit_my_total_cards: u8)->bool{
-                if ((self.get_total_cards_not_played(suit)/8-(this_suit_my_total_cards/8))>0.25){
+            match suit{
+                'H'=>{
+                    if (self.get_total_cards_not_played(suit)/8-(this_suit_my_total_cards/8)) as f32>0.25{
+                        return true;
+                    }
+                    false
+                },
+                'C'=>{
+                    if (self.get_total_cards_not_played(suit)/8-(this_suit_my_total_cards/8)) as f32>0.25{
                     return true;
                 }
-                false
-            }
-            match suit{
-                'H'=>check(suit,this_suit_my_total_cards),
-                'C'=>check(suit,this_suit_my_total_cards),
-                'D'=>check(suit,this_suit_my_total_cards),
-                'S'=>check(suit,this_suit_my_total_cards),
+                false},
+                'D'=>{if (self.get_total_cards_not_played(suit)/8-(this_suit_my_total_cards/8)) as f32>0.25{
+                    return true;
+                }
+                false},
+                'S'=>{
+                    if (self.get_total_cards_not_played(suit)/8-(this_suit_my_total_cards/8)) as f32>0.25{
+                    return true;
+                }
+                false},
                 _=>false,
             }
         }
@@ -146,17 +158,14 @@ impl MyCARDS{
         MyCARDS { H:vec![], C: vec![], D:vec![], S:vec![] }
     }
     pub fn update_my_cards(&mut self,cards:&Vec<String>){
-        fn mapsuit(suit:char,card:char){
-            match suit{
-                'H'=>self.H.push(card_mapto_bitpos(card)),
-                'D'=>self.D.push(card_mapto_bitpos(card)),
-                'C'=>self.C.push(card_mapto_bitpos(card)),
-                'S'=>self.S.push(card_mapto_bitpos(card)),
-                _=>0
-            }
-        }
         for card in cards{
-            mapsuit(card.as_bytes()[1] as char,card.as_bytes()[0] as char);
+            match card.as_bytes()[1] as char{
+                'H'=>self.H.push(card_mapto_key(card.as_bytes()[0] as char)),
+                'D'=>self.D.push(card_mapto_key(card.as_bytes()[0] as char)),
+                'C'=>self.C.push(card_mapto_key(card.as_bytes()[0] as char)),
+                'S'=>self.S.push(card_mapto_key(card.as_bytes()[0] as char)),
+                _=>println!("not found!"),
+            }
         }
         self.H.sort_by(|a, b| b.cmp(a));
         self.C.sort_by(|a, b| b.cmp(a));
@@ -179,24 +188,61 @@ impl MyCARDS{
                 },
             }
         }
-    }
-    /*fn get_card(suit:char)->String{
+    pub fn you_have_the_higher_rank_card(&self,opp_card_key:u8,suit:char)->bool{
         match suit{
-            'H'=>{
-                let key=self.
-            }
-            'H'=>
-            'H'=>
-            'H'=>
-
-
+            'H'=>self.H[0]>opp_card_key,
+            'D'=>self.D[0]>opp_card_key,
+            'C'=>self.C[0]>opp_card_key,
+            'S'=>self.S[0]>opp_card_key,
+            _=>false,
         }
-
-
-
     }
-    fn get_high_rank_card(suit:char)->String{
-        
-
+    pub fn get_card(&self,suit:char,to_maximize:bool)->String{
+        match suit{
+                'H'=>{
+                        if to_maximize{
+                            return self.map_key_to_card(self.H[0], suit);
+                        }
+                        self.map_key_to_card(self.H[self.H.len()-1],suit)
+                },
+                'D'=>{
+                    if to_maximize{
+                        return self.map_key_to_card(self.D[0], suit);
+                    }
+                    self.map_key_to_card(self.D[self.D.len()-1],suit)
+            },
+                'C'=>{
+                    if to_maximize{
+                        return self.map_key_to_card(self.C[0],suit);
+                    }
+                    self.map_key_to_card(self.C[self.C.len()-1],suit)
+            },
+                'S'=>{
+                    if to_maximize{
+                        return self.map_key_to_card(self.S[0],suit);
+                    }
+                    self.map_key_to_card(self.S[self.S.len()-1],suit)
+            },
+                _=>"NULL".to_string(),
+        }
     }
-}*/
+    pub fn you_have_this_card(&self,key:u8,suit:char)->bool{
+        match suit{
+            'H'=>self.H.contains(&key),
+            'D'=>self.D.contains(&key),
+            'C'=>self.C.contains(&key),
+            'S'=>self.S.contains(&key),
+            _=>false,
+        }
+    }
+    pub fn get_first_card_of_given_suit(&self,suit:char)->u8{
+        match suit{
+            'H'=>self.H[0],
+            'D'=>self.D[0],
+            'C'=>self.C[0],
+            'S'=>self.S[0],
+            _=>0,
+        }
+    }
+}
+
