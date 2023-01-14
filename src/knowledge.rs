@@ -204,25 +204,25 @@ impl MyCARDS{
                         if to_maximize{
                             return self.map_key_to_card(self.H[0], suit);
                         }
-                        self.map_key_to_card(self.H[self.H.len()-1],suit)
+                        self.map_key_to_card(*self.H.last().unwrap(),suit)
                 },
                 'D'=>{
                     if to_maximize{
                         return self.map_key_to_card(self.D[0], suit);
                     }
-                    self.map_key_to_card(self.D[self.D.len()-1],suit)
+                    self.map_key_to_card(*self.D.last().unwrap(),suit)
             },
                 'C'=>{
                     if to_maximize{
                         return self.map_key_to_card(self.C[0],suit);
                     }
-                    self.map_key_to_card(self.C[self.C.len()-1],suit)
+                    self.map_key_to_card(*self.C.last().unwrap(),suit)
             },
                 'S'=>{
                     if to_maximize{
                         return self.map_key_to_card(self.S[0],suit);
                     }
-                    self.map_key_to_card(self.S[self.S.len()-1],suit)
+                    self.map_key_to_card(*self.S.last().unwrap(),suit)
             },
                 _=>"NULL".to_string(),
         }
