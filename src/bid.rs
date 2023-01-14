@@ -46,8 +46,10 @@ impl CountHighestRankCards{
         self.cards[&card]
     }
 }
-
 pub fn get_bid(bid_payload:&InBid)->Bid{
+    fn check_all_players_pass(playerid:&String,players:&Vec<String>,bidhis:&Vec<(String,u8)>)->bool{
+    (bidhis[0].0!=bidhis[2].0)&&( players[(players.iter().position(|r|r==&bidhis[2].0).unwrap()+2)%4]==*playerid )&& (bidhis[0].1==0&&bidhis[1].1==0&&bidhis[2].1==0)
+   }
     let InBid{cards,bidState:in_bid_state,..}=bid_payload;
     let mut suits=Trump::init_trump_count(&mut Trump::default());
     suits.countsuits(&cards);
@@ -57,10 +59,13 @@ pub fn get_bid(bid_payload:&InBid)->Bid{
     if bid_payload.bidHistory.len()==0 && can_get_max_bid(&my_high_rank_cards,&suits){
         return Bid{bid:16,};//pass minimum bid
     }
-
+    if bid_payload.bidHistory.len()==3 && check_all_players_pass(&bid_payload.playerId,&bid_payload.playerIds,&bid_payload.bidHistory){
+        //yedi sabai players ley suru mai pass gardai gayoo.. ra last ma you player matra baaki bho bhaney bid minimum
+        return Bid{bid:16,};
+    }
     //yedi def and chalenger is betn team.. one of them must pass to minimize max bid.
     let index = bid_payload.playerIds.iter().position(|playerid| *playerid == in_bid_state.defenderId).unwrap();
-    if bid_payload.playerIds[(index+2)%4]==in_bid_state.challengerId{
+    if (bid_payload.playerIds[(index+2)%4]==in_bid_state.challengerId){
         return Bid{bid:0,};//return because i don't want to increase the bid
     }
 
@@ -130,6 +135,15 @@ pub fn get_bid(bid_payload:&InBid)->Bid{
     }
     if bid_payload.playerId==in_bid_state.challengerId{
         //bid more or pass
+        if in_bid_state.defenderBid==0 {
+            //yedi defender bid 0 chha..bhaney..
+            if in_bid_state.challengerBid==0&& can_get_max_bid(&my_high_rank_cards, &suits){
+               return Bid{bid:16,};
+            }
+            else{
+                 return Bid{bid:0,};
+            }
+        }
         if in_bid_state.defenderBid>=18{// i don't wanna go any further
         return Bid{bid:0,};
     }
@@ -183,20 +197,20 @@ pub fn get_bid(bid_payload:&InBid)->Bid{
 
 ///bidding decisions logics
 fn can_get_max_bid(my_high_rank_cards:&CountHighestRankCards,suits:&Trump)->bool{
+    //if cards have 3 same suit cards
+    if suits.check_if_cards_has_three_same_suits()||suits.check_if_cards_has_two_same_suits(){
+        return true;
+    }
     //if i have atleast 1 1 J and 9 cards.. I should bet minimum
     if my_high_rank_cards.check_atleast_one_present('J')&& my_high_rank_cards.check_atleast_one_present('9'){
         return true;
     }
+     //if cards has 2 same suit and atleast one 9 or J
+     if suits.check_if_cards_has_two_same_suits() && (my_high_rank_cards.check_atleast_one_present('J')|| my_high_rank_cards.check_atleast_one_present('9')){
+        return true;
+    }
     //if more than 2 9s, bet min
-    if my_high_rank_cards.return_total_cards_of_given_rank('J')>1 || my_high_rank_cards.return_total_cards_of_given_rank('9')>1{
-        return true;
-    }
-//if cards have 3 same suit cards
-    if suits.check_if_cards_has_three_same_suits()||suits.check_if_cards_has_two_same_suits(){
-        return true;
-    }
-    //if cards has 2 same suit and atleast one 9 or J
-    if suits.check_if_cards_has_two_same_suits() && (my_high_rank_cards.check_atleast_one_present('J')|| my_high_rank_cards.check_atleast_one_present('9')){
+    if (my_high_rank_cards.return_total_cards_of_given_rank('J')>1 || my_high_rank_cards.return_total_cards_of_given_rank('9')>1){
         return true;
     }
     false
