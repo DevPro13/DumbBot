@@ -1,5 +1,5 @@
 #syntax=docker/dockerfile:1
-# 1: Build the exe
+# 1: Build the execution file
 FROM rust:latest as builder
 WORKDIR /usr/src
 
@@ -9,7 +9,8 @@ RUN apt-get update && \
     apt-get install -y musl-tools && \
     rustup target add x86_64-unknown-linux-musl
 
-# 1b:  compile Rust dependencies (and store as a separate Docker layer)
+# 1b:  compile Rust dependencies and store as a separate Docker image builder
+#working directory in builder image
 WORKDIR /usr/src/smartbot_bhoos
 COPY Cargo.toml Cargo.lock ./
 RUN mkdir src/
@@ -26,5 +27,7 @@ RUN cargo install --target x86_64-unknown-linux-musl --path .
 FROM scratch
 COPY --from=builder /usr/src/smartbot_bhoos/target/x86_64-unknown-linux-musl/release/smartbot_bhoos .
 USER 1000
+#listen to port 8001
 EXPOSE 8001/tcp
+#Run program
 CMD ["./smartbot_bhoos"]
