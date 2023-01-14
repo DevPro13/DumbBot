@@ -7,7 +7,6 @@ mod hi;
 use self::hi::Hello;
 mod play;
 mod knowledge;
-//use std::time::Instant;
 use actix_cors::Cors;
 use actix_web::{get, 
                 post,
@@ -61,23 +60,29 @@ async fn trump_req(payload: web::Json<ChooseTrumpPayload>) -> Result<String> {
 async fn play_card(payload: web::Json<Play>) -> Result<String> {
     println!("{:?}",payload);
     let web::Json(Play)=payload;
-    // let start = Instant::now();
     let play_card_body=play::play_game::play_card(&Play);
-    // let duration = start.elapsed();
+    println!("thrown responce = {}",play_card_body);
     Ok(play_card_body)
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    println!("Hello World! I am running!!!!......");
     HttpServer::new(|| {
         App::new()
-            .wrap(Cors::permissive())
+            .wrap(
+                Cors::default()
+                .allow_any_origin() //      to allow input from any origin i.e. sandbox to pc, or server to docker the instance
+                .allowed_methods(vec!["GET", "POST"]) //      to allow only two method used, "get" and "post" method of request
+                .allow_any_header() //      to allow any header information sent with the method, it doesn't matter
+                .max_age(300), //           cache time set 5 minutes for frequent update
+        )
             .service(hi_req)
             .service(bid_req)
             .service(trump_req)
             .service(play_card)
     })
-    .bind(("127.0.0.1",8001))?
+    .bind(("0.0.0.0",8001))?
     .run()
     .await
 }
