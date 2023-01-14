@@ -22,7 +22,9 @@ struct GameDetails{
         last_hand_winner:String,
         this_hand_suit:char,
         partner_card:u8,//keep track of your partners card
-        sum_of_points:u8,//keep track of points
+        sum_of_points:u8,//keep track of points,
+        trump_revealed_in_this_hand:bool,//check if trump was revealed in this hand
+        trump_revealed_by_you:bool,//check if it was you who revealed the trump
 }
 pub mod play_game{
     use super::*;
@@ -69,13 +71,13 @@ pub mod play_game{
                 this_hand_suit:'_',
                 partner_card:0,
                 sum_of_points:0,
-
+                trump_revealed_in_this_hand:false,
+                trump_revealed_by_you:false,
         };
         let mut mycards:MyCARDS=MyCARDS::init(&mut MyCARDS::default());
         let mut knowledge=Knowledge::init(&mut Knowledge::default());//init knowledge
         let Play{trumpSuit:trumpsuit,trumpRevealed:trumprevealed,..}=payload;
-        //check trump reveal status 
-        match trumpsuit{
+       match trumpsuit{
             TrumpSuitEnum::Suit(s)=>gamedetails.trump_suit=*s,
           _=>gamedetails.trump_revealed=false,
           }
@@ -94,14 +96,30 @@ pub mod play_game{
             //trump_revealed
             gamedetails.trump_revealed=true;
         }
+
+        //check when was trump revealed and who revealed
+        if gamedetails.trump_revealed{
+            gamedetails.trump_revealed_in_this_hand=payload.handsHistory.len() as u8==gamedetails.trump_revealed_by.hand-1;
+            gamedetails.trump_revealed_by_you=payload.playerId==gamedetails.trump_revealed_by.playerId;
+        }
         //organize your cards and arrange suits by rank
         mycards.update_my_cards(&payload.cards);
         gamedetails.suits=arrange_suits(&mycards);//arrange the suits
-        println!("Gamedetails{:?}",gamedetails);
         //make knowledge from handhistory
+        if payload.handsHistory.len()==0{
+            //technically 1st hand winner is the one who first throww the card.
+            if payload.played.len()==2{
+                gamedetails.last_hand_winner=payload.playerIds[((payload.playerIds.iter().position(|r| r == &payload.playerId)).unwrap()+(2 as usize))%4].clone();
+                //it is my partner
+            }
+            if payload.played.len()==3{
+                let previous_player_id_index=payload.playerIds.iter().position(|r| r == &payload.playerId).unwrap()-1;
+                gamedetails.last_hand_winner=payload.playerIds[(previous_player_id_index+(2 as usize))%4].clone();//it is one of my opponent
+            }
+        }
         if payload.handsHistory.len()!=0 || payload.cards.len()!=8{
-            //update knowledge
-           knowledge.update_knowledge(&payload.played);
+            //make knowledge
+            make_knowledge(&mut knowledge, &payload.handsHistory,&mut gamedetails);
         }
         //make knowledge of played card
         if payload.played.len()!=0{
@@ -136,6 +154,7 @@ pub mod play_game{
         if  payload.playerIds[((payload.playerIds.iter().position(|r| r == &leading_player).unwrap())+2)%4]==payload.playerId{
             gamedetails.we_are_winning=true;
         }
+        println!("Gamedetails{:?}",gamedetails);
         if gamedetails.we_are_winning{
             //maximize card points
             return throw_max(&mycards,&gamedetails,&knowledge);//try to get max points
@@ -154,12 +173,17 @@ pub mod play_game{
                 //if i have this hand suit and my team is winning
                         return throwcard(mycards.get_card(gamedetails.this_hand_suit,true));
             }
+            //doesnot contains this hand suit......
+            //...................................
             else if !gamedetails.trump_revealed && !gamedetails.i_won_the_bid{
                     return reveal_trump();
             }
             else if !gamedetails.trump_revealed && gamedetails.i_won_the_bid{
+                //trump isn't revealed and you are the bid winner
                 if knowledge.get_total_cards_not_played(gamedetails.this_hand_suit)>=1{
+                    //get total cards not played of this hand suit
                     if knowledge.card_greater_than_this_rank_card_exist(gamedetails.partner_card, gamedetails.this_hand_suit){
+                        //check if opponent has card greater than played by my partner
                         //throw trump and check for points
                             if gamedetails.suits.contains(&(gamedetails.trump_suit)){
                                 return reveal_trump_play_card(mycards.get_card(gamedetails.trump_suit, true));
@@ -169,6 +193,7 @@ pub mod play_game{
                                 return throwcard(mycards.get_card(*gamedetails.suits.last().unwrap(), false));
                             }
                         }
+                        //other player has card rank lesser than my partner
                     else{
                         //throw other card and check for points
                         //check duita suits.. yedi trump_suit hoina ra 
@@ -177,19 +202,25 @@ pub mod play_game{
                         if gamedetails.suits.contains(&(gamedetails.trump_suit)){
                             // check if you have the winning suits
                             if knowledge.check_played_card(128, gamedetails.trump_suit) &&mycards.you_have_this_card(128,gamedetails.trump_suit){
+                                //if i have the J card... throw it
                                 return reveal_trump_play_card(mycards.get_card(gamedetails.trump_suit, true));
                             }
                             else if !knowledge.card_greater_than_this_rank_card_exist(mycards.get_first_card_of_given_suit(gamedetails.trump_suit),gamedetails.trump_suit){
                                 return reveal_trump_play_card(mycards.get_card(gamedetails.trump_suit, true));
                             }
                             else{
-                                if gamedetails.suits.last().unwrap()!=&gamedetails.trump_suit{
-                                    //avoid throwing trump card
-                                    return throwcard(mycards.get_card(*gamedetails.suits.last().unwrap(), false));
+                                for i in gamedetails.suits.iter(){
+                                    if gamedetails.suits.len()!=1{
+                                        if i!=&gamedetails.trump_suit{
+                                            //avoid throwing trump card
+                                            return throwcard(mycards.get_card(*i, false));
+                                        }
                                 }
                                 else{
-                                    return throwcard(mycards.get_card(gamedetails.suits[gamedetails.suits.len()-2], false));
-                                }  
+                                    continue;
+                                }
+                            }
+                            return throwcard(mycards.get_card(*gamedetails.suits.last().unwrap(), false));
                             }
                             
                         }
@@ -200,8 +231,9 @@ pub mod play_game{
                     }
                 }
                 else{
-                    //no more this hand suit card left
+                    //no more this hand suit card left .. all used..
                     if gamedetails.suits.contains(&(gamedetails.trump_suit)){
+                        //you have trump suits
                         // check if you have the winning suits
                         if knowledge.check_played_card(128, gamedetails.trump_suit) &&mycards.you_have_this_card(128,gamedetails.trump_suit){
                             return reveal_trump_play_card(mycards.get_card(gamedetails.trump_suit, true));
@@ -210,32 +242,48 @@ pub mod play_game{
                             return reveal_trump_play_card(mycards.get_card(gamedetails.trump_suit, true));
                         }
                         else{
-                            if gamedetails.suits.last().unwrap()!=&gamedetails.trump_suit{
-                                //avoid throwing trump card
-                                return throwcard(mycards.get_card(*(gamedetails.suits.last().unwrap()), false));
+                            for suit in gamedetails.suits.iter(){
+                                if gamedetails.suits.len()!=1{
+                                    if suit!=&gamedetails.trump_suit{
+                                        //avoid throwing trump card
+                                        return throwcard(mycards.get_card(*suit, false));
+                                    }
                             }
-                            else if gamedetails.suits.len()>=2{
-                                return throwcard(mycards.get_card(gamedetails.suits[gamedetails.suits.len()-2], false));
-                            }  
                             else{
-                                return throwcard(mycards.get_card(gamedetails.suits[0], false));
+                                continue;
                             }
+                            }
+                            return throwcard(mycards.get_card(*gamedetails.suits.last().unwrap(), false));
                         }
                         
                     }
                     else{
+                        //you don't have a trump suit catds..
                         return throwcard(mycards.get_card(*gamedetails.suits.last().unwrap(), false));
                     }
                 }
             }
-        else if gamedetails.trump_revealed{
-            //trump has been revealed and you don't have this hand trump
+            //trump has been revealed
+        else {
+            //i am out of this hand suit..
+            if gamedetails.trump_revealed_in_this_hand && gamedetails.trump_revealed_by_you{
+                //if trump revealed in this hand and it was me.
+                if gamedetails.suits.contains(&(gamedetails.trump_suit)){
+                    return throwcard(mycards.get_card(gamedetails.trump_suit, true));
+                }
+                else if !knowledge.card_greater_than_this_rank_card_exist(gamedetails.partner_card, gamedetails.this_hand_suit) && knowledge.get_total_cards_not_played(gamedetails.this_hand_suit)>=1 {
+                    return throwcard(mycards.get_card(*gamedetails.suits.last().unwrap(),true));
+                }
+                else{
+                    return throwcard(mycards.get_card(*gamedetails.suits.last().unwrap(),false));
+                }
+            }
             if knowledge.get_total_cards_not_played(gamedetails.this_hand_suit)>=1{
-                //if any this hand suit cards left to play
+                //if any this hand suit cards left to play with the opponenents
                 if knowledge.card_greater_than_this_rank_card_exist(gamedetails.partner_card, gamedetails.this_hand_suit){
                     if gamedetails.suits.contains(&(gamedetails.trump_suit)){
                         //throw max trump card
-                        return throwcard(mycards.get_card(gamedetails.suits[0], true));
+                        return throwcard(mycards.get_card(gamedetails.trump_suit, true));
                     }
                     else{
                         //throw any random minimim card
@@ -244,19 +292,22 @@ pub mod play_game{
                 }
                 else{
                     //my team is winning so throw any max point card
-                    if gamedetails.suits[0]!=gamedetails.trump_suit{
-                        return throwcard(mycards.get_card(gamedetails.suits[0], true));
+                    for i in gamedetails.suits.iter(){
+                        if gamedetails.suits.len()!=1{
+                            if i!=&gamedetails.trump_suit{
+                                //avoid throwing trump card
+                                return throwcard(mycards.get_card(*i, true));
+                            }
                     }
-                    else if gamedetails.suits.len()>=2{
-                        return throwcard(mycards.get_card(gamedetails.suits[gamedetails.suits.len()-2], true));
-                    } 
                     else{
-                        return throwcard(mycards.get_card(gamedetails.suits[0], true));
-                     }
+                        continue;
+                    }
+                }
+                return throwcard(mycards.get_card(*gamedetails.suits.last().unwrap(), true));
                 }
             }
             else {
-                //this hand suit card not left to play
+                //this hand suit card over... opponent will also throw trump card.. so throw max..
                 //throw either trump or any random minimum card
                 //check if opponent has any trump card left
                 if gamedetails.suits.contains(&(gamedetails.trump_suit)){
@@ -268,16 +319,18 @@ pub mod play_game{
                         return throwcard(mycards.get_card(gamedetails.trump_suit, true));
                     }
                     else{
-                        if gamedetails.suits.last().unwrap()!=&gamedetails.trump_suit{
-                            //avoid throwing trump card
-                            return throwcard(mycards.get_card(*gamedetails.suits.last().unwrap(), false));
+                        for i in gamedetails.suits.iter(){
+                            if gamedetails.suits.len()!=1{
+                                if i!=&gamedetails.trump_suit{
+                                    //avoid throwing trump card
+                                    return throwcard(mycards.get_card(*i, false));
+                                }
                         }
-                        else if gamedetails.suits.len()>=2{
-                            return throwcard(mycards.get_card(gamedetails.suits[gamedetails.suits.len()-2], false));
-                        }  
                         else{
-                            return throwcard(mycards.get_card(gamedetails.suits[0], false));
+                            continue;
                         }
+                    }
+                    return throwcard(mycards.get_card(*gamedetails.suits.last().unwrap(), false));
                     }
                     
                 }
@@ -287,9 +340,6 @@ pub mod play_game{
                 }
             }
         }
-        else{
-            "NULL".to_string()
-        }//else nothing
     }
     fn throw_min(mycards:&MyCARDS,gamedetails:&GameDetails,knowledge:&Knowledge)->String{
         if gamedetails.suits.contains(&(gamedetails.this_hand_suit)){
@@ -310,16 +360,18 @@ pub mod play_game{
                         } 
                     }
                     else{
-                        if gamedetails.suits.last().unwrap()!=&gamedetails.trump_suit{
-                            //avoid throwing trump card
-                            return throwcard(mycards.get_card(*gamedetails.suits.last().unwrap(), false));
+                        for i in gamedetails.suits.iter(){
+                            if gamedetails.suits.len()!=1{
+                                if i!=&gamedetails.trump_suit{
+                                    //avoid throwing trump card
+                                    return throwcard(mycards.get_card(*i, false));
+                                }
                         }
-                        else if gamedetails.suits.len()>=2{
-                            return throwcard(mycards.get_card(gamedetails.suits[gamedetails.suits.len()-2], false));
-                        }  
                         else{
-                            return throwcard(mycards.get_card(gamedetails.suits[0], false));
+                            continue;
                         }
+                    }
+                    return throwcard(mycards.get_card(*gamedetails.suits.last().unwrap(), false));
                     }
                 }
                 else{
@@ -400,7 +452,6 @@ pub mod play_game{
                                 }
                             },
                         }
-
                     },
                     &'C'=>{
                         let key=mycards.C[0];//to maximize
@@ -469,17 +520,26 @@ pub mod play_game{
         }
         else if !gamedetails.trump_revealed && gamedetails.i_won_the_bid{
                 //yedi tyo suit ko aru thuprai high rank cards chhan
-                return reveal_trump_play_card(mycards.get_card(gamedetails.trump_suit,false));
+                if gamedetails.suits.contains(&(gamedetails.trump_suit)){
+                    //yedi mah sanga trump card chha bhaney throw it
+                return reveal_trump_play_card(mycards.get_card(gamedetails.trump_suit,true));
+                }
+                else{
+                    //chhaina bhaney throw random minimum card..
+                    return throwcard(mycards.get_card(*gamedetails.suits.last().unwrap(),false));
+                }
         }
         //trumpRevealed part
         else if gamedetails.suits.contains(&(gamedetails.trump_suit)){
-                return throwcard(mycards.get_card(*gamedetails.suits.last().unwrap(), false));
+                return throwcard(mycards.get_card(gamedetails.trump_suit, true));
             }
         else{
                 return throwcard(mycards.get_card(*gamedetails.suits.last().unwrap(), false));
             }
     }
-    fn make_knowledge(knowledge:&mut Knowledge,handshistory:&Vec<(String,Vec<String>,String)>){
+    fn make_knowledge(knowledge:&mut Knowledge,handshistory:&Vec<(String,Vec<String>,String)>,gamedetails:&mut GameDetails){
+          //update last hand winner
+          gamedetails.last_hand_winner=(handshistory.last().unwrap().2).clone();
         for i in handshistory{
             knowledge.update_knowledge(&i.1);
         }
@@ -513,13 +573,12 @@ pub mod play_game{
             if data.len()>=2{
                 for i in 0..data.len(){
                     let mut temp:(char,u8)=data[i];
-                    for j in (i+1)..4{
+                    for j in (i+1)..data.len(){
                         if data[j].1>temp.1{
                             temp=data[j];
                             data[j]=data[i];
                             data[i]=temp;
-                        }
-                        
+                        } 
                     }
                 }
             }
@@ -534,9 +593,11 @@ pub mod play_game{
             let mut possible_winner:&String=&gamedetails.last_hand_winner;
             let mut thrown_by:&String=&gamedetails.last_hand_winner;
             let mut winner_rank_point:(u8,u8)=gamedetails.card_map_to_rank_point[&(played[0].as_bytes()[0] as char)];
+            println!("thrown by player ={}",thrown_by);
             let mut winning_suit:char=gamedetails.this_hand_suit;//if trump card. change it to trump_suit
             for i in played[1..played.len()].iter(){
-                thrown_by= &(players[((players.iter().position(|r| r == thrown_by).unwrap())+1)%4]);
+                thrown_by= &(players[((players.iter().position(|r| r == thrown_by)).unwrap()+(1 as usize))%4]);
+                println!("thrown by player ={}",thrown_by);
                 let played_suit=i.as_bytes()[1] as char;
                 let rank_point:(u8,u8)=gamedetails.card_map_to_rank_point[&(i.as_bytes()[0] as char)];
                 if winning_suit==played_suit && rank_point.0<winner_rank_point.0{
@@ -547,14 +608,12 @@ pub mod play_game{
                     if winning_suit!=gamedetails.trump_suit{
                         winning_suit=gamedetails.trump_suit;
                         winner_rank_point=rank_point;
-                        possible_winner=&thrown_by;
-                        
+                        possible_winner=&thrown_by; 
                     }
                     else if rank_point.0<winner_rank_point.0 {
                         winner_rank_point=rank_point;
                         possible_winner=&thrown_by;
-                    }
-                    
+                    } 
                 }   
             }
             possible_winner.to_string()
@@ -565,6 +624,13 @@ pub mod play_game{
             sum+=card_map_to_rank_points[&(i.as_bytes()[0] as char)].1;
         }
         sum
-    }
-        
+    }     
 }
+/*
+My next implementation
+
+Optimize bidding
+optimize throwing  9 card
+try to get max point.. 
+try to give minimum point
+*/
