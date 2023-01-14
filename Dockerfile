@@ -12,7 +12,6 @@ RUN apt-get update && \
 # 1b:  compile Rust dependencies (and store as a separate Docker layer)
 WORKDIR /usr/src/smartbot_bhoos
 COPY Cargo.toml Cargo.lock ./
-COPY Cargo.toml Cargo.toml
 RUN mkdir src/
 RUN echo "fn main() {println!(\"Hello, this is a build failure message. Believe me.! \")}" > src/main.rs
 RUN cargo install --target x86_64-unknown-linux-musl --path .
@@ -27,5 +26,5 @@ RUN cargo install --target x86_64-unknown-linux-musl --path .
 FROM scratch
 COPY --from=builder /usr/src/smartbot_bhoos/target/x86_64-unknown-linux-musl/release/smartbot_bhoos .
 USER 1000
-CMD ["./smartbot_bhoos"]
 EXPOSE 8001/tcp
+CMD ["./smartbot_bhoos"]
