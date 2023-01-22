@@ -1,4 +1,6 @@
-#[derive(Default)]
+use std::collections::HashMap;
+
+#[derive(Default,Debug)]
 pub struct Knowledge{
     //this will give the knowledge of played and un-played cards of respective suits
     //each variable represent a suit of 1 byte
@@ -10,9 +12,17 @@ pub struct Knowledge{
     D:u8,//for cards of Diamond suit
     S:u8,//for cards of Spades suit
 }
-#[derive(Default)]
+#[derive(Default,Debug)]
 pub struct MyCARDS{
     pub H:Vec<u8>,
+    pub C:Vec<u8>,
+    pub D:Vec<u8>,
+    pub S:Vec<u8>,
+}
+#[derive(Default,Debug)]
+pub struct HandsInformation{
+    pub hand:HashMap<u8,(char,char)>,
+    pub H:Vec<u8>,//collect player who are ran out of this suit
     pub C:Vec<u8>,
     pub D:Vec<u8>,
     pub S:Vec<u8>,
@@ -131,22 +141,22 @@ impl Knowledge{
         pub fn no_possibility_of_trump_reveal(&self,suit:char,this_suit_my_total_cards:u8)->bool{
             match suit{
                 'H'=>{
-                    if (self.get_total_cards_not_played(suit)/8-(this_suit_my_total_cards/8)) as f32>0.25{
+                    if (self.get_total_cards_not_played(suit)/8-(this_suit_my_total_cards/8)) as f32>0.0{
                         return true;
                     }
                     false
                 },
                 'C'=>{
-                    if (self.get_total_cards_not_played(suit)/8-(this_suit_my_total_cards/8)) as f32>0.25{
+                    if (self.get_total_cards_not_played(suit)/8-(this_suit_my_total_cards/8)) as f32>0.0{
                     return true;
                 }
                 false},
-                'D'=>{if (self.get_total_cards_not_played(suit)/8-(this_suit_my_total_cards/8)) as f32>0.25{
+                'D'=>{if (self.get_total_cards_not_played(suit)/8-(this_suit_my_total_cards/8)) as f32>0.0{
                     return true;
                 }
                 false},
                 'S'=>{
-                    if (self.get_total_cards_not_played(suit)/8-(this_suit_my_total_cards/8)) as f32>0.25{
+                    if (self.get_total_cards_not_played(suit)/8-(this_suit_my_total_cards/8)) as f32>0.0{
                     return true;
                 }
                 false},
@@ -198,6 +208,15 @@ impl MyCARDS{
             _=>false,
         }
     }
+    pub fn total_card_left(&self,suit:char)->u8{
+        match suit{
+            'H'=>self.H.len() as u8,
+            'D'=>self.D.len() as u8,
+            'C'=>self.C.len() as u8,
+            'S'=>self.S.len() as u8,
+            _=>0,
+        }
+    }
     pub fn get_card(&self,suit:char,to_maximize:bool)->String{
         match suit{
                 'H'=>{
@@ -227,6 +246,15 @@ impl MyCARDS{
                 _=>"NULL".to_string(),
         }
     }
+    pub fn non_point_card_exist(&self,suit:char)->bool{
+        match suit{
+            'H'=>*self.H.last().unwrap()<=8,
+            'D'=>*self.D.last().unwrap()<=8,
+            'C'=>*self.C.last().unwrap()<=8,
+            'S'=>*self.S.last().unwrap()<=8,
+            _=>false,
+    }
+}
     pub fn you_have_this_card(&self,key:u8,suit:char)->bool{
         match suit{
             'H'=>self.H.contains(&key),
@@ -244,6 +272,77 @@ impl MyCARDS{
             'S'=>self.S[0],
             _=>0,
         }
+    }
+    pub fn get_second_card(&self,suit:char)->u8{
+        match suit{
+            'H'=>self.H[1],
+            'D'=>self.D[1],
+            'C'=>self.C[1],
+            'S'=>self.S[1],
+            _=>0,
+        }
+    }
+    pub fn get_card_left(&self,suit:char)->u8{
+        //returns the total card available in this suits
+        match suit{
+            'H'=>self.H.len()as u8,
+            'D'=>self.D.len() as u8,
+            'C'=>self.C.len() as u8,
+            'S'=>self.S.len() as u8,
+            _=>0,
+        }
+    }
+}
+impl HandsInformation{
+    pub fn init(&mut self)->HandsInformation{
+       HandsInformation { hand:HashMap::new(),
+                            H:Vec::new(),
+                            C:Vec::new(),
+                            D:Vec::new(),
+                            S:Vec::new(),
+        }
+
+    }
+    pub fn update_hands_info(&mut self,hand:u8,played_card:&String,winner_card:&String){
+        //hands starts form 0 to 7
+        self.hand.insert(hand,(played_card.as_bytes()[1] as char,winner_card.as_bytes()[1] as char));
+    }
+    pub fn check_any_player_ran_out_of_this_suit(&self,suit:char)->usize{
+        //this function checks if any players is ran out of this suit cards and returns hand
+        if self.hand.len() as u8==0{
+            return 8 as usize;
+        }
+        let mut total_hands_completed:u8=(self.hand.len()-1) as u8;
+        while total_hands_completed!=0{
+            if suit==self.hand[&total_hands_completed].0{
+                    if self.hand[&total_hands_completed].0!=self.hand[&total_hands_completed].1{
+                        return total_hands_completed as usize;
+                    }
+            }
+            total_hands_completed-=1;
+        }
+        8 as usize//this means... this suit card was not defeated by any trump winning card..
+    }
+    pub fn update_suits_info_of_players(&mut self,playerid:u8,suit:char){
+        //this will list out the players who are ran out of this suit
+        match suit{
+            'H'=>self.H.push(playerid),
+            'D'=>self.D.push(playerid),
+            'C'=>self.C.push(playerid),
+            'S'=>self.S.push(playerid),
+            _=>(),
+        }
+    }
+    pub fn any_player_ran_out_of_this_suit_cards(&self,playerid:u8,suit:char)->bool{
+        //this analizes then hand gives the onclution that player is ran out of hand
+        match suit{
+            'H'=>self.H.contains(&playerid),
+            'D'=>self.D.contains(&playerid),
+            'C'=>self.C.contains(&playerid),
+            'S'=>self.S.contains(&playerid),
+            _=>false,
+        }
+        
     }
 }
 

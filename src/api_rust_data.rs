@@ -11,7 +11,7 @@ pub struct InBidState{
 pub struct InBid{
     pub playerId:String,
     pub playerIds:Vec<String>,
-    pub timeRemaining:i32,
+    pub timeRemaining:f64,
     pub cards:Vec<String>,
     pub bidHistory:Vec<(String,u8)>,
     pub bidState:InBidState,
@@ -26,7 +26,7 @@ pub struct Bid{
 pub struct ChooseTrumpSuit{
     pub playerId:String,
     pub playerIds:Vec<String>,
-    pub timeRemaining:i32,
+    pub timeRemaining:f64,
     pub cards:Vec<String>,
     pub bidHistory:Vec<(String,u8)>,
 }
@@ -63,7 +63,7 @@ pub enum TrumpRevealEnum {
 pub struct Play{
     pub playerId:String,
     pub playerIds:Vec<String>,
-    pub timeRemaining:i32,
+    pub timeRemaining:f64,
     pub teams:Vec<Team>,
     pub cards:Vec<String>,
     pub bidHistory:Vec<(String,u8)>,

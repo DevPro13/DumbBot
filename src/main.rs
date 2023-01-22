@@ -58,7 +58,7 @@ async fn trump_req(payload: web::Json<ChooseTrumpPayload>) -> Result<String> {
 }
 #[post("/play")]
 async fn play_card(payload: web::Json<Play>) -> Result<String> {
-    println!("{:?}",payload);
+    println!("{:?}\n\n",payload);
     let web::Json(Play)=payload;
     let play_card_body=play::play_game::play_card(&Play);
     println!("thrown responce = {}",play_card_body);
