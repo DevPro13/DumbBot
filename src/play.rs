@@ -676,16 +676,47 @@ pub mod play_game{
                 //you have card greater than played card
                 return throwcard(mycards.get_card(gamedetails.this_hand_suit,true));
             }
-            else{
+            else if mycards.get_card_left(gamedetails.this_hand_suit)>=2 && knowledge.card_greater_than_this_rank_card_exist(mycards.get_first_card_of_given_suit(gamedetails.this_hand_suit), gamedetails.this_hand_suit){
                 //throrw minimum card
+                return throwcard(mycards.map_key_to_card(mycards.get_second_card(gamedetails.this_hand_suit),gamedetails.this_hand_suit));
+            }
+            else{
                 return throwcard(mycards.get_card(gamedetails.this_hand_suit,false));
             }   
         }
+        //i am run out of this hand suit
         else if !gamedetails.trump_revealed && !gamedetails.i_won_the_bid{
                 return reveal_trump();
         }
         else if !gamedetails.trump_revealed && gamedetails.i_won_the_bid{
                 //yedi tyo suit ko aru thuprai high rank cards chhan
+                //i am run out of this hand suit
+                if gamedetails.sum_of_points<2{
+                    for i in gamedetails.suits_arrange_from_min.iter(){
+                        if *i==gamedetails.trump_suit{
+                            continue;
+                        }
+                        //not a trump suit 
+                        if mycards.non_point_card_exist(*i){
+                            return throwcard(mycards.get_card(*i,false));
+                        }
+                    }
+                }
+                else{
+                    if knowledge.no_possibility_of_trump_reveal(gamedetails.this_hand_suit, 0)&&!probability_that_this_player_ran_out_of_this_suit_cards((gamedetails.playerid+1)%4, &payload,gamedetails.this_hand_suit,&gamedetails){
+                        for i in gamedetails.suits.iter(){
+                            if *i!=gamedetails.trump_suit{
+                                return throwcard(mycards.get_card(*i,true));
+                            }
+                        }
+                    }
+                    //else there is possibility of trump reveal 
+                    for i in gamedetails.suits_arrange_from_min.iter(){
+                        if *i!=gamedetails.trump_suit&& mycards.non_point_card_exist(*i){
+                            return throwcard(mycards.get_card(*i,false));
+                        }
+                    }
+                }
                 if gamedetails.suits.contains(&(gamedetails.trump_suit)){
                     //yedi mah sanga trump card chha bhaney throw it
                     //throw card that maximizes points
