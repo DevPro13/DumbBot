@@ -7,6 +7,7 @@ mod hi;
 use self::hi::Hello;
 mod play;
 mod knowledge;
+mod mcts_algorithm;
 use actix_cors::Cors;
 use actix_web::{get, 
                 post,

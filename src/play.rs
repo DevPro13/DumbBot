@@ -12,7 +12,7 @@ use crate::knowledge::{
     card_mapto_key,
 };
 #[derive(Debug)]
-struct GameDetails{
+pub struct GameDetails{
         playerid:u8,
         card_map_to_rank_point:HashMap<char,(u8,u8)>,
         we_are_winning:bool,//if we are winning

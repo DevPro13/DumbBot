@@ -43,6 +43,22 @@ pub fn card_mapto_key(card:char)->u8{
             },
     }
 }
+pub fn map_key_to_card(key:u8,suit:char)->String{
+    match key{
+        128=>format!("{}{}",'J',suit),
+        64=>format!("{}{}",'9',suit),
+        32=>format!("{}{}",'1',suit),
+        16=>format!("{}{}",'T',suit),
+        8=>format!("{}{}",'K',suit),
+        4=>format!("{}{}",'Q',suit),
+        2=>format!("{}{}",'8',suit),
+        1=>format!("{}{}",'7',suit),
+        _ =>{
+                println!("Not played card");
+                "X".to_string()
+            },
+        }
+    }
 impl Knowledge{
     pub fn init(&mut self)->Knowledge{
         Knowledge{
@@ -137,6 +153,85 @@ impl Knowledge{
             }
            }
            count
+        }
+        pub fn get_opponent_cards_not_played(&self,mycards:&MyCARDS)->Vec<String>{
+            let mut cards:Vec<String>=Vec::new();
+            let card_keys:Vec<u8>=vec![128,64,32,16,8,4,2,1];
+            for i in card_keys.iter(){
+                if self.get_total_cards_not_played('H')!=0 && !self.check_played_card(*i, 'H'){
+                    if !mycards.H.contains(i){
+                        //if this card is not played
+                        cards.push(map_key_to_card(*i,'H'));
+                    }
+                }
+                if self.get_total_cards_not_played('S')!=0 && !self.check_played_card(*i, 'S'){
+                    if !mycards.S.contains(i){
+                        //if this card is not played
+                        cards.push(map_key_to_card(*i,'S'));
+                    }
+                }
+                if self.get_total_cards_not_played('C')!=0 && !self.check_played_card(*i, 'C'){
+                    if !mycards.C.contains(i){
+                        //if this card is not played
+                        cards.push(map_key_to_card(*i,'C'));
+                    }
+                }
+                if self.get_total_cards_not_played('D')!=0 && !self.check_played_card(*i, 'D') {
+                    if !mycards.D.contains(i){
+                        //if this card is not played
+                        cards.push(map_key_to_card(*i,'D'));
+                    }
+                }
+            
+            }
+            cards
+
+        }
+        pub fn get_opp_cards_of_this_suit(&self,suit:char,mycards:&MyCARDS)->Vec<String>{
+                if self.get_total_cards_not_played(suit)==0{
+                    return vec![];
+                }
+                let card_keys:Vec<u8>=vec![128,64,32,16,8,4,2,1];
+                let mut cards:Vec<String>=Vec::new();
+                //it has played cards
+                for i in card_keys.iter(){
+                match suit{
+                    'H'=>{
+                        if !self.check_played_card(*i, suit){
+                           if !mycards.H.contains(i) {
+                                //if this card is not played
+                                cards.push(map_key_to_card(*i,suit));
+                            }
+                        }
+                    },
+                    'S'=>{
+                        if !self.check_played_card(*i, suit){
+                            if !mycards.H.contains(i) {
+                                 //if this card is not played
+                                 cards.push(map_key_to_card(*i,suit));
+                             }
+                         }
+                    },
+                    'D'=>{
+                        if !self.check_played_card(*i, suit){
+                            if !mycards.H.contains(i) {
+                                 //if this card is not played
+                                 cards.push(map_key_to_card(*i,suit));
+                             }
+                         }
+                    },
+                    'C'=>{
+                        if !self.check_played_card(*i, suit){
+                            if !mycards.H.contains(i) {
+                                 //if this card is not played
+                                 cards.push(map_key_to_card(*i,suit));
+                             }
+                         }
+                    },
+                    _=>(),
+                }
+            }
+            cards
         }
         pub fn no_possibility_of_trump_reveal(&self,suit:char,this_suit_my_total_cards:u8)->bool{
             match suit{
