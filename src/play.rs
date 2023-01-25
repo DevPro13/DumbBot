@@ -11,24 +11,28 @@ use crate::knowledge::{
     HandsInformation,
     card_mapto_key,
 };
-#[derive(Debug)]
+//use std::borrow::BorrowMut;
+use std::cell::RefCell;
+use std::rc::Rc;
+use crate::mcts_algorithm::MCTSTwentyNineGameTreeNode;
+#[derive(Debug,Default)]
 pub struct GameDetails{
-        playerid:u8,
-        card_map_to_rank_point:HashMap<char,(u8,u8)>,
-        we_are_winning:bool,//if we are winning
-        trump_revealed:bool,//its tells trump revealed or not.. initially set true because the data from payload comes in false
-        trump_suit:char,//here stores trump_suit
-        trump_revealed_by:TrumpRevealedBy,
-        bid_winner_playerid:u8,//holds the id of bid winner
-        i_won_the_bid:bool,
-        suits:Vec<char>,//suits arrange form max cards
-        suits_arrange_from_min:Vec<char>,//suits arranged from min cards
-        last_hand_winner:u8,
-        this_hand_suit:char,
-        partner_card:u8,//keep track of your partners card
-        sum_of_points:u8,//keep track of points,
-        trump_revealed_in_this_hand:bool,//check if trump was revealed in this hand
-        trump_revealed_by_you:bool,//check if it was you who revealed the trump
+        pub playerid:u8,
+        pub card_map_to_rank_point:HashMap<char,(u8,u8)>,
+        pub we_are_winning:bool,//if we are winning
+        pub trump_revealed:bool,//its tells trump revealed or not.. initially set true because the data from payload comes in false
+        pub trump_suit:char,//here stores trump_suit
+        pub trump_revealed_by:TrumpRevealedBy,
+        pub bid_winner_playerid:u8,//holds the id of bid winner
+        pub i_won_the_bid:bool,
+        pub suits:Vec<char>,//suits arrange form max cards
+        pub suits_arrange_from_min:Vec<char>,//suits arranged from min cards
+        pub last_hand_winner:u8,
+        pub this_hand_suit:char,
+        pub partner_card:u8,//keep track of your partners card
+        pub sum_of_points:u8,//keep track of points,
+        pub trump_revealed_in_this_hand:bool,//check if trump was revealed in this hand
+        pub trump_revealed_by_you:bool,//check if it was you who revealed the trump
 }
 pub mod play_game{
     use super::*;
@@ -120,6 +124,9 @@ pub mod play_game{
         //make knowledge from handhistory
         if payload.handsHistory.len()as u8==0{
             //technically 1st hand winner is the one who first throww the card.
+            if payload.played.len()as u8==0{
+                gamedetails.last_hand_winner=gamedetails.playerid;//it is one of my opponent in the left
+            }
             if payload.played.len()as u8==1{
                 gamedetails.last_hand_winner=(gamedetails.playerid+3)%4;//it is one of my opponent in the left
             }
@@ -141,6 +148,7 @@ pub mod play_game{
             make_knowledge(&payload.playerIds,&mut knowledge, &payload.handsHistory,&mut gamedetails,&mut hands_info);
             //update suits and cards info for players
             update_players_suits_info(&mut hands_info, &payload.playerIds, &payload.handsHistory);
+            update_hands_history_in_handsinfo(&mut hands_info,&payload);
         }
         println!("HandsInfo: {:?}",hands_info);
         //make knowledge of played card
@@ -149,12 +157,31 @@ pub mod play_game{
         }
       //make knowledge of opponenet and partner player
         gamedetails.bid_winner_playerid=map_string_playerid_to_number(&payload.playerIds,&get_bid_winnerid(&payload.bidHistory));// get bid winner id
-         
-        //throw card according to your turn
+        //  knowledge.get_opponent_cards_not_played(&mycards);//opponent all cards
+        //  knowledge.get_opp_cards_of_this_suit('H', &mycards);
+        //  knowledge.get_opp_cards_of_this_suit('S', &mycards);
+        //  knowledge.get_opp_cards_of_this_suit('D', &mycards);
+        //  knowledge.get_opp_cards_of_this_suit('C', &mycards);
+        //  knowledge.get_opponent_cards_except_this_suit_cards('H', &mycards);
+        //  knowledge.get_opponent_cards_except_this_suit_cards('S', &mycards);
+        //  knowledge.get_opponent_cards_except_this_suit_cards('D', &mycards);
+        //  knowledge.get_opponent_cards_except_this_suit_cards('C', &mycards);
+        //  return throwcard(payload.cards[0].clone());
+        let root = Rc::new(RefCell::new(MCTSTwentyNineGameTreeNode::init()));
+        root.borrow_mut().state=Some(payload.played.to_owned());
+        root.borrow_mut().expand_tree(&payload.cards,Rc::clone(&root));
         //............YOUR 1ST TURN.............
         if payload.played.len() as u8==0{
             //your 1st turn
-            return make_first_move(&payload,&mycards,&knowledge,&gamedetails,&hands_info);
+            for _ in 0..5000{
+                let node=root.borrow().select_node();
+                //let mut node_ref=node.borrow();
+                let winner_id=node.borrow().rollout(&knowledge, &mycards, &mut gamedetails, &hands_info);
+                node.borrow_mut().backpropagate(winner_id, gamedetails.playerid);
+            }
+            let best_score_node=root.borrow().best_score_node();
+            return throwcard(best_score_node.borrow().get_best_score_card(0 as u8));
+            //return make_first_move(&payload,&mycards,&knowledge,&gamedetails,&hands_info);
         }
         //get sum of points from thrown cards
         gamedetails.sum_of_points=get_total_points(&payload.played, &gamedetails.card_map_to_rank_point);
@@ -195,7 +222,7 @@ pub mod play_game{
     fn throw_max(mycards:&MyCARDS,gamedetails:&GameDetails,knowledge:&Knowledge,payload:&Play,handsinfo:&HandsInformation)->String{
             //give max point
             //avoid using trump card
-            //check opponenet has cards or not
+            //check sonenet has cards or not
             //reveal trump if it wasn't you
             if gamedetails.suits.contains(&(gamedetails.this_hand_suit)){
                 //if i have this hand suit and my team is winning
@@ -823,6 +850,11 @@ pub mod play_game{
             knowledge.update_knowledge(&i.1);
             handsinfo.update_hands_info(hand,&i.1[0],&this_hand_winner.1);
             hand+=1;
+        }
+    }
+    fn update_hands_history_in_handsinfo(hands_info:&mut HandsInformation,payload:&Play){
+        for i in payload.handsHistory.iter(){
+            hands_info.handhistory.push((map_string_playerid_to_number(&payload.playerIds,&i.0),i.1.to_owned(),map_string_playerid_to_number(&payload.playerIds,&i.2)));
         }
     }
     fn get_bid_winnerid(bidhistory:&Vec<(String,u8)>)->String{

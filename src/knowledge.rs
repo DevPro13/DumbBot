@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use crate::play::GameDetails;
+
 #[derive(Default,Debug)]
 pub struct Knowledge{
     //this will give the knowledge of played and un-played cards of respective suits
@@ -22,6 +24,7 @@ pub struct MyCARDS{
 #[derive(Default,Debug)]
 pub struct HandsInformation{
     pub hand:HashMap<u8,(char,char)>,
+    pub handhistory:Vec<(u8,Vec<String>,u8)>,
     pub H:Vec<u8>,//collect player who are ran out of this suit
     pub C:Vec<u8>,
     pub D:Vec<u8>,
@@ -83,28 +86,29 @@ impl Knowledge{
     }
     pub fn check_played_card(&self,key:u8,suit:char)->bool{
         //this funtion takes a key eg "128" and suit 'H' as input and tell it is played or not
-        
+        //true==played
+        //false==not played
         match suit {
             'H'=>{
-                if self.H & key!=0{
+                if self.H & key==0{
                     return true;
                 }
                 false
             },
             'C'=>{
-                if self.C & key!=0{
+                if self.C & key==0{
                     return true;
                 }
                 false
             },
             'D'=>{
-                if self.D & key!=0{
+                if self.D & key==0{
                     return true;
                 }
                 false
             },
             'S'=>{
-                if self.S & key!=0{
+                if self.S & key==0{
                     return true;
                 }
                 false
@@ -148,7 +152,7 @@ impl Knowledge{
             let mut count:u8 =0;
            let cards:Vec<u8>=vec![128,64,32,16,8,4,2,1];
            for i in cards.iter(){
-            if self.check_played_card(*i, suit){
+            if !self.check_played_card(*i, suit){
                 count+=1;
             }
            }
@@ -157,6 +161,7 @@ impl Knowledge{
         pub fn get_opponent_cards_not_played(&self,mycards:&MyCARDS)->Vec<String>{
             let mut cards:Vec<String>=Vec::new();
             let card_keys:Vec<u8>=vec![128,64,32,16,8,4,2,1];
+            //println!("My cards :{:?}",mycards);
             for i in card_keys.iter(){
                 if self.get_total_cards_not_played('H')!=0 && !self.check_played_card(*i, 'H'){
                     if !mycards.H.contains(i){
@@ -184,6 +189,7 @@ impl Knowledge{
                 }
             
             }
+            //println!("opponenet all cards:{:?}",cards);
             cards
 
         }
@@ -206,7 +212,7 @@ impl Knowledge{
                     },
                     'S'=>{
                         if !self.check_played_card(*i, suit){
-                            if !mycards.H.contains(i) {
+                            if !mycards.S.contains(i) {
                                  //if this card is not played
                                  cards.push(map_key_to_card(*i,suit));
                              }
@@ -214,7 +220,7 @@ impl Knowledge{
                     },
                     'D'=>{
                         if !self.check_played_card(*i, suit){
-                            if !mycards.H.contains(i) {
+                            if !mycards.D.contains(i) {
                                  //if this card is not played
                                  cards.push(map_key_to_card(*i,suit));
                              }
@@ -222,7 +228,7 @@ impl Knowledge{
                     },
                     'C'=>{
                         if !self.check_played_card(*i, suit){
-                            if !mycards.H.contains(i) {
+                            if !mycards.C.contains(i) {
                                  //if this card is not played
                                  cards.push(map_key_to_card(*i,suit));
                              }
@@ -231,7 +237,19 @@ impl Knowledge{
                     _=>(),
                 }
             }
+            //println!("opponenet cards of this suit cards:{:?}",cards);
             cards
+        }
+        pub fn get_opponent_cards_except_this_suit_cards(&self,suit:char,mycards:&MyCARDS)->Vec<String>{
+                let all_cards:Vec<String>=self.get_opponent_cards_not_played(&mycards);
+                let mut cards_except_this_suit_cards:Vec<String>=Vec::new();
+                for i in all_cards.iter(){
+                    if i.as_bytes()[1] as char!=suit{
+                        cards_except_this_suit_cards.push(i.to_string());
+                    }
+                }
+                //println!("opponenet cards except this suit cards:{:?}",cards_except_this_suit_cards);
+                cards_except_this_suit_cards
         }
         pub fn no_possibility_of_trump_reveal(&self,suit:char,this_suit_my_total_cards:u8)->bool{
             match suit{
@@ -391,6 +409,7 @@ impl MyCARDS{
 impl HandsInformation{
     pub fn init(&mut self)->HandsInformation{
        HandsInformation { hand:HashMap::new(),
+                            handhistory:Vec::new(),
                             H:Vec::new(),
                             C:Vec::new(),
                             D:Vec::new(),
@@ -438,6 +457,60 @@ impl HandsInformation{
             _=>false,
         }
         
+    }
+    pub fn probability_that_this_player_ran_out_of_this_suit(&self,player:u8,suit:char,myid:u8)->bool{
+        //players: opponenet left and right and my partner
+        let mut played_card_by_this_player_in_this_hand=String::new();
+        let mut next_player:u8;
+        if self.handhistory.len() as u8==0{
+            return false;
+        }
+        for i in self.handhistory.iter(){
+            if i.1[0].as_bytes()[1] as char==suit{
+                //if that hand was playedd with this suit
+                let mut thrown_by=i.0;
+                let mut card_keys:Vec<u8>=Vec::new();
+                card_keys.push(card_mapto_key(i.1[0].as_bytes()[0] as char));
+                if thrown_by!=player{
+                     for j in i.1[1..4].iter(){
+                    next_player=(thrown_by+1)%4;
+                    if next_player==player{
+                        played_card_by_this_player_in_this_hand=j.clone();
+                        //break;
+                    }
+                    card_keys.push(card_mapto_key(j.as_bytes()[0] as char));
+                    thrown_by=next_player; 
+                }
+                }
+                else{
+                    //thrown by is player
+                    played_card_by_this_player_in_this_hand=i.1[0].clone();
+                }
+               
+                //if me or my team has thrown 128 and this player throws 64
+                //he thrown card of different suit
+                //println!("Hello why bug here{}",played_card_by_this_player_in_this_hand);
+                if played_card_by_this_player_in_this_hand.as_bytes()[1] as char!=i.1[0].as_bytes()[1] as char{
+                    return true;
+                }
+                if card_mapto_key(played_card_by_this_player_in_this_hand.as_bytes()[0]as char)==64&&card_keys.contains(&128){
+                    thrown_by=i.0;
+                    if (myid==(thrown_by+2)%4)||(myid==thrown_by){
+                        //it is thrown by my team..
+                        if card_mapto_key(i.1[0].as_bytes()[0] as char)==128||card_mapto_key(i.1[2].as_bytes()[0] as char)==128{
+                            return true;
+                        }
+                    }
+                    else{
+                        if card_mapto_key(i.1[0].as_bytes()[0] as char)!=128||card_mapto_key(i.1[2].as_bytes()[0] as char)!=128{
+                                return true;
+                        }
+                    }
+                }
+
+            }   
+        }
+        false
     }
 }
 
