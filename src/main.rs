@@ -61,6 +61,10 @@ async fn trump_req(payload: web::Json<ChooseTrumpPayload>) -> Result<String> {
 async fn play_card(payload: web::Json<Play>) -> Result<String> {
     println!("{:?}\n\n",payload);
     let web::Json(Play)=payload;
+    //let raw=r#"{"playerId":"UcDvW4nf","playerIds":["Bot 0","3nrbJ-Kn","Bot 1","UcDvW4nf"],"cards":["1D","8C","7D","9H","JD","KD"],"timeRemaining":1215.706928,"bidHistory":[["3nrbJ-Kn",16],["Bot 1",0],["UcDvW4nf",0],["Bot 0",0]],"handsHistory":[["3nrbJ-Kn",["JS","9S","1S","7S"],"3nrbJ-Kn"],["3nrbJ-Kn",["8S","7C","KH","TS"],"Bot 0"]],"played":["KS","8H","TC"],"teams":[{"players":["Bot 0","Bot 1"],"bid":0,"won":1},{"players":["3nrbJ-Kn","UcDvW4nf"],"bid":16,"won":6}],"trumpSuit":"H","trumpRevealed":{"hand":3,"playerId":"UcDvW4nf"}}
+    //"#;
+    //let paylod:Play=serde_json::from_str(raw)?;
+    //println!("{}",play::play_game::play_card(&paylod));
     let play_card_body=play::play_game::play_card(&Play);
     println!("thrown responce = {}",play_card_body);
     Ok(play_card_body)

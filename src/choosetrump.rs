@@ -20,12 +20,6 @@ impl Trump{
             self.suits.insert(k,self.suits[&k]+1);
         }
     }
-    pub fn ret_counted_suits(&self)->HashMap<char,u8>{
-        self.suits.clone()
-    }
-    pub fn display(&self){
-    println!("{:?}",self.suits);
-    }
 pub fn gettrumpsuit(&self)->String{
     let mut cards_with_only_one_suits:Vec<char>=Vec::new();
     for key in self.suits.keys(){
