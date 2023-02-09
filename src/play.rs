@@ -207,48 +207,11 @@ pub mod play_game{
             //reveal trump if it wasn't you
             let result=pridict_winning_player(&payload.played, gamedetails);
             if gamedetails.suits.contains(&(gamedetails.this_hand_suit)){
-                // if mycards.get_card_left(gamedetails.this_hand_suit)==1{
-                //     return throwcard(mycards.get_card(gamedetails.this_hand_suit,true));
-                // }
-                // let cards_of_this_suit=mycards.get_this_hand_suit_cards(gamedetails.this_hand_suit);
-                // let _root=Rc::new(RefCell::new(MCTSTwentyNineGameTreeNode::init()));
-                // _root.as_ref().borrow_mut().state=Some(vec![].to_owned());
-                //  _root.as_ref().borrow_mut().expand_tree(&cards_of_this_suit,Rc::clone(&_root));
-                //         for _ in 0..num_of_simulation(cards_of_this_suit.len() as u8){
-                //             let node=_root.borrow().select_node();
-                //             //let mut node_ref=node.borrow();
-                //             let winner_id=node.borrow().rollout(&knowledge, &mycards, gamedetails, &handsinfo);
-                //             node.as_ref().borrow_mut().backpropagate(winner_id, gamedetails.playerid);
-                //         }
-                //         let best_score_node=_root.borrow().best_score_node();
-                //         let worst_score_node=_root.borrow().worst_score_node();
-                //         if best_score_node.as_ref().borrow().wins>0{
-                //             return throwcard(best_score_node.borrow().get_best_score_card(0 as u8));
-                //         }
-                //         return throwcard(worst_score_node.borrow().get_best_score_card(0  as u8));
-
                return throwcard(mycards.get_card(gamedetails.this_hand_suit,true));   
             }
             if !gamedetails.suits.contains(&(gamedetails.this_hand_suit))&&knowledge.no_possibility_of_trump_reveal(gamedetails.this_hand_suit, 0)&&!gamedetails.trump_revealed_in_this_hand&&!gamedetails.trump_revealed_by_you{
                 //if i have this hand suit and my team is winning
-                if payload.played.len() as u8==2{
-                    if !handsinfo.any_player_ran_out_of_this_suit_cards((gamedetails.playerid+1)%4,gamedetails.this_hand_suit){
-                        return throwcard(get_random_card(gamedetails, &mycards, &payload, &knowledge, &handsinfo));
-                    }
-                    else{
-                        if !gamedetails.trump_revealed && !gamedetails.i_won_the_bid{
-                            return reveal_trump();
-                    }
-                    if gamedetails.suits.contains(&gamedetails.trump_suit){
-                        return throwcard(mycards.get_card(gamedetails.trump_suit,true));
-                    }
                     return throwcard(get_random_card(gamedetails, &mycards, &payload, &knowledge, &handsinfo));
-                    }
-                }
-                else{
-                    return throwcard(get_random_card(gamedetails, &mycards, &payload, &knowledge, &handsinfo));
-                }
-                
             }
             //doesnot contains this hand suit......
             //...................................
@@ -274,8 +237,10 @@ pub mod play_game{
                         //throw other card and check for points
                         //check duita suits.. yedi trump_suit hoina ra 
                         //aruko trump card sakkauney kaam garnu paryo
-                        
                         if gamedetails.suits.contains(&(gamedetails.trump_suit)){
+                            if result.1.as_bytes()[1] as char!=gamedetails.trump_suit&&gamedetails.sum_of_points<2{
+                                return throwcard(get_random_card(gamedetails, &mycards, &payload, &knowledge, &handsinfo));
+                            }
                             // check if you have the winning suits
                             if knowledge.check_played_card(128, gamedetails.trump_suit) &&mycards.you_have_this_card(128,gamedetails.trump_suit){
                                 //if i have the J card... throw it
@@ -298,6 +263,9 @@ pub mod play_game{
                 else{
                     //no more this hand suit card left .. all used..
                     if gamedetails.suits.contains(&(gamedetails.trump_suit)){
+                        if result.1.as_bytes()[1] as char!=gamedetails.trump_suit&&gamedetails.sum_of_points<2{
+                            return throwcard(get_random_card(gamedetails, &mycards, &payload, &knowledge, &handsinfo));
+                        }
                         //you have trump suits
                         // check if you have the winning suits
                         if knowledge.check_played_card(128, gamedetails.trump_suit) &&mycards.you_have_this_card(128,gamedetails.trump_suit){
@@ -398,19 +366,6 @@ pub mod play_game{
                 }
                 return throwcard(mycards.get_card_just_greater_than_this(card_mapto_key( result.1.as_bytes()[0] as char),gamedetails.this_hand_suit));
             }
-            // let cards_of_this_suit=mycards.get_this_hand_suit_cards(gamedetails.this_hand_suit);
-            // let _root=Rc::new(RefCell::new(MCTSTwentyNineGameTreeNode::init()));
-            // _root.as_ref().borrow_mut().state=Some(vec![].to_owned());
-            //  _root.as_ref().borrow_mut().expand_tree(&cards_of_this_suit,Rc::clone(&_root));
-            //         for _ in 0..num_of_simulation(cards_of_this_suit.len() as u8){
-            //             let node=_root.borrow().select_node();
-            //             //let mut node_ref=node.borrow();
-            //             let winner_id=node.borrow().rollout(&knowledge, &mycards, gamedetails, &handsinfo);
-            //             node.as_ref().borrow_mut().backpropagate(winner_id, gamedetails.playerid);
-            //         }
-            //         //let best_score_node=_root.borrow().best_score_node();
-            //         let worst_score_node=_root.borrow().worst_score_node();
-            //         return throwcard(worst_score_node.borrow().get_best_score_card(0  as u8));
             return throwcard(mycards.get_card(gamedetails.this_hand_suit,false));
         }
         else if !gamedetails.trump_revealed{
@@ -418,6 +373,9 @@ pub mod play_game{
                 if gamedetails.i_won_the_bid{
                     if knowledge.get_total_cards_not_played(gamedetails.this_hand_suit)>=1{
                         if gamedetails.suits.contains(&(gamedetails.trump_suit)){
+                            if result.1.as_bytes()[1] as char!=gamedetails.trump_suit&&gamedetails.sum_of_points<2{
+                                return throwcard(get_random_card(gamedetails, &mycards, &payload, &knowledge, &handsinfo));
+                            }
                             //throw max trump card
                             return reveal_trump_play_card(get_the_winning_trump(&payload, gamedetails, &mycards));
                         }
@@ -461,6 +419,9 @@ pub mod play_game{
                     //yedi mah sanga trump card chha bhaney throw it
                     //throw card that maximizes points
                     return throwcard(mycards.get_card(gamedetails.trump_suit,false));
+                }
+                if result.1.as_bytes()[1] as char!=gamedetails.trump_suit&&gamedetails.sum_of_points<2{
+                    return throwcard(get_random_card(gamedetails, &mycards, &payload, &knowledge, &handsinfo));
                 }
                 if payload.played.len() as u8==2 && knowledge.no_possibility_of_trump_reveal(gamedetails.this_hand_suit,0){
                     return throwcard(mycards.map_key_to_card(get_trump_card_that_maximizes(&mycards, &gamedetails, &knowledge),gamedetails.trump_suit));
@@ -546,6 +507,24 @@ pub mod play_game{
         //if no point getting card.. throw card with min num of suits
         //see if the cards has high rank
         //see if you have the high rank card
+        //    if gamedetails.trump_revealed || gamedetails.i_won_the_bid{
+        //     if mycards.get_card_left(gamedetails.trump_suit)>=3{
+        //     let trump_cards=mycards.get_this_hand_suit_cards(gamedetails.trump_suit);
+        //     let _root=Rc::new(RefCell::new(MCTSTwentyNineGameTreeNode::init()));
+        //         _root.as_ref().borrow_mut().state=Some(payload.played.to_owned());
+        //          _root.as_ref().borrow_mut().expand_tree(&trump_cards,Rc::clone(&_root));
+        //                 for _ in 0..num_of_simulation(trump_cards.len() as u8){
+        //                     let node=_root.borrow().select_node();
+        //                     //let mut node_ref=node.borrow();
+        //                     let winner_id=node.borrow().rollout(&knowledge, &mycards, gamedetails, &handsinfo);
+        //                     node.as_ref().borrow_mut().backpropagate(winner_id, gamedetails.playerid);
+        //                 }
+        //                 let best_score_node=_root.borrow().best_score_node();
+        //                 if best_score_node.as_ref().borrow().wins>0{
+        //                     return throwcard(best_score_node.borrow().get_best_score_card(0 as u8));
+        //                 }
+        //     }
+        //    }
         let mut run_out_suits:Vec<char>=Vec::new();
         if gamedetails.suits.len() as u8==1{
             if mycards.get_card_left(gamedetails.suits[0])<=2{
@@ -554,15 +533,15 @@ pub mod play_game{
                 }
                 return throwcard(mycards.get_card(gamedetails.suits[0],false));
             }
-    let _root=Rc::new(RefCell::new(MCTSTwentyNineGameTreeNode::init()));
-    _root.as_ref().borrow_mut().state=Some(payload.played.to_owned());
-     _root.as_ref().borrow_mut().expand_tree(&payload.cards,Rc::clone(&_root));
-            for _ in 0..num_of_simulation(payload.cards.len() as u8){
-                let node=_root.borrow().select_node();
-                //let mut node_ref=node.borrow();
-                let winner_id=node.borrow().rollout(&knowledge, &mycards, gamedetails, &handsinfo);
-                node.as_ref().borrow_mut().backpropagate(winner_id, gamedetails.playerid);
-            }
+            let _root=Rc::new(RefCell::new(MCTSTwentyNineGameTreeNode::init()));
+                _root.as_ref().borrow_mut().state=Some(payload.played.to_owned());
+                _root.as_ref().borrow_mut().expand_tree(&payload.cards,Rc::clone(&_root));
+                    for _ in 0..num_of_simulation(payload.cards.len() as u8){
+                        let node=_root.borrow().select_node();
+                        //let mut node_ref=node.borrow();
+                        let winner_id=node.borrow().rollout(&knowledge, &mycards, gamedetails, &handsinfo);
+                        node.as_ref().borrow_mut().backpropagate(winner_id, gamedetails.playerid);
+                    }
             let best_score_node=_root.borrow().best_score_node();
                 let worst_score_node=_root.borrow().best_score_node();
                 if best_score_node.as_ref().borrow().wins>0{
@@ -653,7 +632,7 @@ pub mod play_game{
                     return throwcard(mycards.get_card(last_play_result.1.as_bytes()[1] as char,true));
                 }
         }
-        if mycards.non_point_card_exist(last_play_result.1.as_bytes()[1] as char)&&last_play_result.1.as_bytes()[1] as char!=gamedetails.trump_suit{
+        if (gamedetails.trump_revealed||gamedetails.i_won_the_bid)&&mycards.non_point_card_exist(last_play_result.1.as_bytes()[1] as char)&&last_play_result.1.as_bytes()[1] as char!=gamedetails.trump_suit{
             return throwcard(mycards.get_card(last_play_result.1.as_bytes()[1] as char,false));
         }
     }
@@ -670,6 +649,7 @@ pub mod play_game{
     }
      let non_point_cards_and_tens_ones=mycards.tens_ones_and_non_point_cards(gamedetails.trump_suit);
      if non_point_cards_and_tens_ones.len() as u8 >1{
+        println!("Mah yeha chhu 637");
         let _root=Rc::new(RefCell::new(MCTSTwentyNineGameTreeNode::init()));
         _root.as_ref().borrow_mut().state=Some(payload.played.to_owned());
          _root.as_ref().borrow_mut().expand_tree(&non_point_cards_and_tens_ones,Rc::clone(&_root));
@@ -705,25 +685,25 @@ pub mod play_game{
 }
 fn num_of_simulation(num_of_cards:u8)->u32{
     if num_of_cards==2{
-        return 500;
-    }
-    if num_of_cards==3{
         return 2000;
     }
+    if num_of_cards==3{
+        return 4000;
+    }
     if num_of_cards==4{
-        return 5000;
+        return 7000;
     }
     if num_of_cards==5{
-        return 6000;
+        return 8000;
     }
     if num_of_cards==6{
-        return 7000;
+        return 9000;
     }
     if num_of_cards==7{
         return 10000;
     }
     if num_of_cards==8{
-        return 11000;
+        return 12000;
     }
     1000
 }
@@ -921,6 +901,10 @@ fn num_of_simulation(num_of_cards:u8)->u32{
         let mut _point_cards=mycards.get_point_cards(); 
         let mut tens_ones_and_non_point_cards=mycards.tens_ones_and_non_point_cards(gamedetails.trump_suit);
         let low_grade_suits=get_suits_that_has_the_possibility_of_trump_reveal(&gamedetails.suits, &knowledge, &mycards);
+        let get_rand_cards=mycards.get_random_cards(gamedetails.trump_suit,&knowledge);
+        if get_rand_cards.len() as u8!=0{
+            return get_rand_cards.last().unwrap().clone();
+        }
         if _point_cards.len() as u8==0{
             _point_cards=payload.cards.to_owned();
         }

@@ -681,36 +681,47 @@ pub fn get_card_just_greater_than_this(&self,key:u8,trump:char)->String{
     }
     return map_key_to_card(card_key,trump).clone();
 }
-pub fn get_trap_card_ones(&self)->Vec<String>{
+pub fn get_random_cards(&self,trump:char,knowledge:&Knowledge)->Vec<String>{
     let mut cards:Vec<String>=Vec::new();
-    if self.H.len() as u8!=0{
-        for i in self.H.iter(){
-            if *i==32{
-                cards.push(self.map_key_to_card(*i, 'H'));
-            }
+    if self.H.len() as u8!=0&&trump!='H'{
+        if (!knowledge.check_played_card(128,'H')&&!self.you_have_this_card(128, 'H'))||(!knowledge.check_played_card(64,'H')&&!self.you_have_this_card(64, 'H')){
+            if !self.you_have_the_higher_rank_card(16,'H'){
+                for i in self.H.iter(){
+                    cards.push(self.map_key_to_card(*i, 'H'));
         }
     }
-    if self.D.len() as u8!=0{
-        for i in self.D.iter(){
-            if *i==32{
-                cards.push(self.map_key_to_card(*i, 'D'));
-            }
-        }
-    }
-    if self.C.len() as u8!=0{
-        for i in self.C.iter(){
-            if *i==32{
-                cards.push(self.map_key_to_card(*i, 'C'));
-            }
-        }
-    }
-    if self.S.len() as u8!=0{
-        for i in self.S.iter(){
-            if *i==32{
+}       
+}
+if self.S.len() as u8!=0&&trump!='S'{
+    if (!knowledge.check_played_card(128,'S')&&!self.you_have_this_card(128, 'S'))||(!knowledge.check_played_card(64,'S')&&!self.you_have_this_card(64, 'S')){
+        if !self.you_have_the_higher_rank_card(16,'S'){
+            for i in self.S.iter(){
                 cards.push(self.map_key_to_card(*i, 'S'));
-            }
-        }
     }
+}
+}
+    
+}
+if self.D.len() as u8!=0&&trump!='D'{
+    if (!knowledge.check_played_card(128,'D')&&!self.you_have_this_card(128, 'D'))||(!knowledge.check_played_card(64,'D')&&!self.you_have_this_card(64, 'D')){
+        if !self.you_have_the_higher_rank_card(16,'D'){
+            for i in self.D.iter(){
+                cards.push(self.map_key_to_card(*i, 'D'));
+    }
+}
+}
+    
+}
+if self.C.len() as u8!=0&&trump!='C'{
+    if (!knowledge.check_played_card(128,'C')&&!self.you_have_this_card(128, 'C'))||(!knowledge.check_played_card(64,'C')&&!self.you_have_this_card(64, 'C')){
+        if !self.you_have_the_higher_rank_card(16,'C'){
+            for i in self.C.iter(){
+                cards.push(self.map_key_to_card(*i, 'C'));
+    }
+}
+}
+    
+}
     cards
 }
 }

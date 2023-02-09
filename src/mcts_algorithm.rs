@@ -111,7 +111,7 @@ pub fn backpropagate(&mut self,winner_id:u8,myid:u8){
                             }
                             else{
                             //theres is this hand cards left
-                            let idx=self.get_card(&leading_card,&this_hand_cards);
+                            let idx=rng.gen_range(0..this_hand_cards.len() as u8);
                             current_state.push(this_hand_cards.remove(idx as usize));
                             continue;
                             }
@@ -150,9 +150,12 @@ pub fn backpropagate(&mut self,winner_id:u8,myid:u8){
                             }
                             else{
                             //theres is this hand cards left
-                            let idx=self.get_card(&leading_card,&this_hand_cards);
+                            let idx=rng.gen_range(0..this_hand_cards.len() as u8);
                             current_state.push(this_hand_cards.remove(idx as usize));
                             continue;
+                            // let idx=self.get_card(&leading_card,&this_hand_cards);
+                            // current_state.push(this_hand_cards.remove(idx as usize));
+                            // continue;
                             }
                           }
                         else{
@@ -188,9 +191,12 @@ pub fn backpropagate(&mut self,winner_id:u8,myid:u8){
                             }
                             else{
                             //theres is this hand cards left
-                            let idx=self.get_card(&leading_card,&this_hand_cards);
+                            let idx=rng.gen_range(0..this_hand_cards.len() as u8);
                             current_state.push(this_hand_cards.remove(idx as usize));
                             continue;
+                            // let idx=self.get_card(&leading_card,&this_hand_cards);
+                            // current_state.push(this_hand_cards.remove(idx as usize));
+                            // continue;
                             }
                           }
                         else{
@@ -213,32 +219,32 @@ pub fn backpropagate(&mut self,winner_id:u8,myid:u8){
     fn display(&self){
       println!("self.state={:?}\n self.plays={}\n self.wins={}\n",self.state.as_ref().unwrap(),self.plays,self.wins);
     }
-    fn get_card(&self,leading_card:&String,cards:&Vec<String>)->usize{
-      let mut rng = thread_rng();//for random number generation
-        let card_map_to_rank_point:HashMap<char,(u8,u8)>=HashMap::from([
-          //each suit cards ranks and points
-          ('J',(1,3)),
-          ('9',(2,2)),
-          ('1',(3,1)),
-          ('T',(4,1)),
-          ('K',(5,0)),
-          ('Q',(6,0)),
-          ('8',(7,0)),
-          ('7',(8,0))
-]);
-          let mut card_to_throw:String=leading_card.to_string();
-          for card in cards.iter(){
-            if card_map_to_rank_point[&(card_to_throw.as_bytes()[0] as char)]>card_map_to_rank_point[&(card.as_bytes()[0] as char)]{
-                card_to_throw=card.to_string();
-                break;
-            }
-          }
-          if card_to_throw==*leading_card{
-            return rng.gen_range(0..cards.len() as u8) as usize;
-          }
-          cards.iter().position(|r|r==&card_to_throw).unwrap() as usize
+//     fn get_card(&self,leading_card:&String,cards:&Vec<String>)->usize{
+//       let mut rng = thread_rng();//for random number generation
+//         let card_map_to_rank_point:HashMap<char,(u8,u8)>=HashMap::from([
+//           //each suit cards ranks and points
+//           ('J',(1,3)),
+//           ('9',(2,2)),
+//           ('1',(3,1)),
+//           ('T',(4,1)),
+//           ('K',(5,0)),
+//           ('Q',(6,0)),
+//           ('8',(7,0)),
+//           ('7',(8,0))
+// ]);
+//           let mut card_to_throw:String=leading_card.to_string();
+//           for card in cards.iter(){
+//             if card_map_to_rank_point[&(card_to_throw.as_bytes()[0] as char)]>card_map_to_rank_point[&(card.as_bytes()[0] as char)]{
+//                 card_to_throw=card.to_string();
+//                 break;
+//             }
+//           }
+//           if card_to_throw==*leading_card{
+//             return rng.gen_range(0..cards.len() as u8) as usize;
+//           }
+//           cards.iter().position(|r|r==&card_to_throw).unwrap() as usize
 
-    }
+//     }
     pub fn best_score_node(&self)->Rc<RefCell<MCTSTwentyNineGameTreeNode>>{
       let mut temp_node=Rc::clone(&self.children[0]);
       if temp_node.as_ref().borrow().wins==0{
