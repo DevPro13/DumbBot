@@ -45,6 +45,7 @@ async fn bid_req(payload: web::Json<BidPayload>) -> Result<String> {
     let obtained_bid:Bid=get_bid(&BidPayload);//get object of Bidresponce
      // Serialize it to a JSON string.
      let body = serde_json::to_string(&obtained_bid).unwrap();
+     println!("{}",body);
      Ok(format!("{}",body))
  }
 

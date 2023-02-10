@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use super::choosetrump::Trump;
-#[derive(Clone,Default)]
+#[derive(Clone,Default,Debug)]
 pub struct CountHighestRankCards{
     cards:HashMap<char,u8>,
 }
@@ -31,7 +31,7 @@ impl CountHighestRankCards{
         false
     }
     fn check_atleast_two_present(&self,card:char)->bool{
-        if self.cards[&card]>0{
+        if self.cards[&card]>1{
             return true;
         }
         false
@@ -46,6 +46,7 @@ pub fn get_bid(bid_payload:&InBid)->Bid{
     suits.countsuits(&cards);
     let mut my_high_rank_cards=CountHighestRankCards::init_count(&mut CountHighestRankCards::default());
     my_high_rank_cards.count_highest_rank_cards(&cards);
+    println!("my high rank cards: {:?}",my_high_rank_cards);
     //bidding decision starts here
     if bid_payload.bidHistory.len()==0 && can_get_max_bid(&my_high_rank_cards,&suits){
         return Bid{bid:16,};//pass minimum bid
@@ -149,24 +150,28 @@ return Bid{bid:0,};
             bid:in_bid_state.defenderBid+1,
         };
     }
+    println!("Mah yeha chhu 152");
    //if this true bid more than challenger bid
     if (suits.check_if_cards_has_three_same_suits()||suits.check_if_cards_has_two_same_suits()) && (my_high_rank_cards.check_atleast_one_present('J')|| my_high_rank_cards.check_atleast_two_present('9')) &&in_bid_state.defenderBid<17{
         return Bid{
             bid:in_bid_state.defenderBid+1,
         };
     }
+    println!("Mah yeha chhu 159");
     //if atleast 2 J and 2 same suits bids
     if my_high_rank_cards.check_atleast_two_present('J') && suits.check_if_cards_has_two_same_suits() && in_bid_state.defenderBid<18{
         return Bid{
             bid:in_bid_state.defenderBid+1,
         };
     }
+    println!("Mah yeha chhu 166");
      //if atleast 1 J and 1 9 and two same suits bids
-     if my_high_rank_cards.check_atleast_one_present('J')&&my_high_rank_cards.check_atleast_one_present('9')  && (suits.check_if_cards_has_two_same_suits()||suits.check_if_cards_has_three_same_suits() ) && in_bid_state.defenderBid<17{
+     if my_high_rank_cards.check_atleast_one_present('J')&&my_high_rank_cards.check_atleast_two_present('9')  && (suits.check_if_cards_has_two_same_suits()||suits.check_if_cards_has_three_same_suits() ) && in_bid_state.defenderBid<17{
         return Bid{
             bid:in_bid_state.defenderBid+1,
         };
     }
+    println!("Mah yeha chhu 173");
     //if atleast 2 same suits and 2 J 1 9 1 T or 1
      if in_bid_state.defenderBid<17&&(suits.check_if_cards_has_two_same_suits()||suits.check_if_cards_has_three_same_suits())&&(my_high_rank_cards.check_atleast_two_present('J')&&my_high_rank_cards.check_atleast_one_present('9'))&&(my_high_rank_cards.check_atleast_one_present('1')||my_high_rank_cards.check_atleast_one_present('T')){
         return Bid{

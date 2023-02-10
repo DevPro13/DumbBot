@@ -209,7 +209,12 @@ pub mod play_game{
             if gamedetails.suits.contains(&(gamedetails.this_hand_suit)){
                return throwcard(mycards.get_card(gamedetails.this_hand_suit,true));   
             }
-            if !gamedetails.suits.contains(&(gamedetails.this_hand_suit))&&knowledge.no_possibility_of_trump_reveal(gamedetails.this_hand_suit, 0)&&!gamedetails.trump_revealed_in_this_hand&&!gamedetails.trump_revealed_by_you{
+            if !gamedetails.suits.contains(&(gamedetails.this_hand_suit))&&knowledge.no_possibility_of_trump_reveal(gamedetails.this_hand_suit, 0)&&!gamedetails.trump_revealed_in_this_hand&&!gamedetails.trump_revealed_by_you&&!gamedetails.trump_revealed{
+                if payload.played.len() as u8==2&&knowledge.card_greater_than_this_rank_card_exist(card_mapto_key(result.1.as_bytes()[0] as char),gamedetails.this_hand_suit){
+                    if !knowledge.check_played_card(64, gamedetails.this_hand_suit)||!knowledge.check_played_card(128, gamedetails.this_hand_suit){
+                        return reveal_trump();
+                    }
+                }
                 //if i have this hand suit and my team is winning
                     return throwcard(get_random_card(gamedetails, &mycards, &payload, &knowledge, &handsinfo));
             }
@@ -717,29 +722,44 @@ fn num_of_simulation(num_of_cards:u8)->u32{
         }
         //i am run out of this hand suit
         else if !gamedetails.trump_revealed && !gamedetails.i_won_the_bid{
+            if gamedetails.sum_of_points>=2{
                 return reveal_trump();
+            }
+            if !knowledge.check_played_card(64,gamedetails.this_hand_suit)||!knowledge.check_played_card(128,gamedetails.this_hand_suit) && !handsinfo.any_player_ran_out_of_this_suit_cards((gamedetails.playerid+1)%4,gamedetails.this_hand_suit){
+                return reveal_trump();
+            }
+            if knowledge.no_possibility_of_trump_reveal(gamedetails.this_hand_suit,0){
+                if !knowledge.check_played_card(64,gamedetails.this_hand_suit)||!knowledge.check_played_card(128,gamedetails.this_hand_suit){
+                    return reveal_trump();
+                }
+            }
+            return throwcard(get_random_card(gamedetails, &mycards, &payload, &knowledge, &handsinfo));
         }
         else if !gamedetails.trump_revealed && gamedetails.i_won_the_bid{
                 //i am run out of this hand suit
-                if gamedetails.suits.contains(&(gamedetails.trump_suit))&&!handsinfo.any_player_ran_out_of_this_suit_cards((gamedetails.playerid+1)%4, gamedetails.this_hand_suit){
-                    //yedi mah sanga trump card chha bhaney throw it
-                    //throw card that maximizes points
-                    return reveal_trump_play_card(mycards.get_card(gamedetails.trump_suit,false));
-
+                if gamedetails.suits.contains(&(gamedetails.trump_suit)){
+                    if gamedetails.sum_of_points>=2{
+                        return reveal_trump_play_card(mycards.get_card(gamedetails.trump_suit,false));
+                    }
+                    if !knowledge.check_played_card(64,gamedetails.this_hand_suit)||!knowledge.check_played_card(128,gamedetails.this_hand_suit) && !handsinfo.any_player_ran_out_of_this_suit_cards((gamedetails.playerid+1)%4,gamedetails.this_hand_suit){
+                        return reveal_trump_play_card(mycards.get_card(gamedetails.trump_suit,false));
+                    }
+                    if knowledge.no_possibility_of_trump_reveal(gamedetails.this_hand_suit,0)&&(!knowledge.check_played_card(64,gamedetails.this_hand_suit)||!knowledge.check_played_card(128,gamedetails.this_hand_suit)){
+                            return reveal_trump_play_card(mycards.get_card(gamedetails.trump_suit,false));
+                    }
                 }
-                else{
                     //messa doesnot have a trump
                     //check mero opponent sanga yo hand ko card chha ki nai..
                      //throw any random minimim card
                     return throwcard(get_random_card(gamedetails, &mycards, &payload, &knowledge, &handsinfo));
-                }
+    
         }
         //trumpRevealed part......
         else if gamedetails.suits.contains(&(gamedetails.trump_suit)){
-            if !handsinfo.any_player_ran_out_of_this_suit_cards((gamedetails.playerid+1)%4, gamedetails.this_hand_suit){
+            if !handsinfo.any_player_ran_out_of_this_suit_cards((gamedetails.playerid+1)%4, gamedetails.this_hand_suit)&&knowledge.no_possibility_of_trump_reveal(gamedetails.this_hand_suit,0){
                 //yedi mah sanga trump card chha bhaney throw it
                 //throw card that maximizes points
-                return throwcard(mycards.get_card(gamedetails.trump_suit,false));
+                return throwcard(mycards.map_key_to_card(get_trump_card_that_maximizes(&mycards, &gamedetails, &knowledge),gamedetails.trump_suit));
             }
              return throwcard(mycards.map_key_to_card(get_trump_card_that_maximizes(&mycards, &gamedetails, &knowledge),gamedetails.trump_suit));
             }
