@@ -492,44 +492,6 @@ pub mod play_game{
         //if no point getting card.. throw card with min num of suits
         //see if the cards has high rank
         //see if you have the high rank card
-        // _root.borrow_mut().state=Some(payload.played.to_owned());
-        // _root.borrow_mut().expand_tree(&payload.cards,Rc::clone(&_root));
-
-        // //your 1st turn
-        // for _ in 0..100{
-        //     let node=_root.borrow().select_node();
-        //     //let mut node_ref=node.borrow();
-        //     let winner_id=node.borrow().rollout(&knowledge, &mycards, &mut gamedetails, &hands_info);
-        //     node.borrow_mut().backpropagate(winner_id, gamedetails.playerid);
-        // }
-        // let best_score_node=root.borrow().best_score_node();
-        // return throwcard(best_score_node.borrow().get_best_score_card(0 as u8));
-
-
-        //............YOUR 1ST TURN.............
-             //make getting point strategy
-        //yedi trump cards chha bhaney tyo nafaalney.. in the beginning.. sakdo try opponeent ko trump card sakkauna
-        //if no point getting card.. throw card with min num of suits
-        //see if the cards has high rank
-        //see if you have the high rank card
-        //    if gamedetails.trump_revealed || gamedetails.i_won_the_bid{
-        //     if mycards.get_card_left(gamedetails.trump_suit)>=3{
-        //     let trump_cards=mycards.get_this_hand_suit_cards(gamedetails.trump_suit);
-        //     let _root=Rc::new(RefCell::new(MCTSTwentyNineGameTreeNode::init()));
-        //         _root.as_ref().borrow_mut().state=Some(payload.played.to_owned());
-        //          _root.as_ref().borrow_mut().expand_tree(&trump_cards,Rc::clone(&_root));
-        //                 for _ in 0..num_of_simulation(trump_cards.len() as u8){
-        //                     let node=_root.borrow().select_node();
-        //                     //let mut node_ref=node.borrow();
-        //                     let winner_id=node.borrow().rollout(&knowledge, &mycards, gamedetails, &handsinfo);
-        //                     node.as_ref().borrow_mut().backpropagate(winner_id, gamedetails.playerid);
-        //                 }
-        //                 let best_score_node=_root.borrow().best_score_node();
-        //                 if best_score_node.as_ref().borrow().wins>0{
-        //                     return throwcard(best_score_node.borrow().get_best_score_card(0 as u8));
-        //                 }
-        //     }
-        //    }
         let mut run_out_suits:Vec<char>=Vec::new();
         if gamedetails.suits.len() as u8==1{
             if mycards.get_card_left(gamedetails.suits[0])<=2{

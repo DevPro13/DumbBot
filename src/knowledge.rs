@@ -305,15 +305,6 @@ impl MyCARDS{
             _=>false,
         }
     }
-    pub fn total_card_left(&self,suit:char)->u8{
-        match suit{
-            'H'=>self.H.len() as u8,
-            'D'=>self.D.len() as u8,
-            'C'=>self.C.len() as u8,
-            'S'=>self.S.len() as u8,
-            _=>0,
-        }
-    }
     pub fn get_card(&self,suit:char,to_maximize:bool)->String{
         match suit{
                 'H'=>{
@@ -369,107 +360,6 @@ impl MyCARDS{
             'S'=>self.S[0],
             _=>0,
         }
-    }
-    pub fn get_second_card(&self,suit:char)->u8{
-        match suit{
-            'H'=>{
-                if self.H.len() as u8>=2{
-                    return self.H[1];
-                }
-                else{
-                    *self.H.last().unwrap()
-                }
-                },
-            'D'=>{
-                if self.D.len() as u8>=2{
-                    return self.D[1];
-                }
-                else{
-                    *self.D.last().unwrap()
-                }
-                },
-            'C'=>{
-                if self.C.len() as u8>=2{
-                    return self.C[1];
-                }
-                else{
-                    *self.C.last().unwrap()
-                }
-                },
-            'S'=>{
-                if self.S.len() as u8>=2{
-                    return self.S[1];
-                }
-                else{
-                    *self.S.last().unwrap()
-                }
-                },
-            _=>0,
-        }
-    }
-    pub fn get_non_point_cards(&self,trump:char)->Vec<String>{
-        let mut cards:Vec<String>=Vec::new();
-        if self.H.len() as u8!=0 &&trump!='H'{
-            for i in self.H.iter(){
-                if *i<=8{
-                    cards.push(self.map_key_to_card(*i, 'H'));
-                }
-            }
-        }
-        if self.D.len() as u8!=0&&trump!='D'{
-            for i in self.D.iter(){
-                if *i<=8{
-                    cards.push(self.map_key_to_card(*i, 'D'));
-                }
-            }
-        }
-        if self.C.len() as u8!=0&&trump!='C'{
-            for i in self.C.iter(){
-                if *i<=8{
-                    cards.push(self.map_key_to_card(*i, 'C'));
-                }
-            }
-        }
-        if self.S.len() as u8!=0&&trump!='S'{
-            for i in self.S.iter(){
-                if *i<=8{
-                    cards.push(self.map_key_to_card(*i, 'S'));
-                }
-            }
-        }
-        cards
-    }
-    pub fn get_this_hand_suit_cards(&self,suit:char)->Vec<String>{
-        let mut cards:Vec<String>=Vec::new();
-        if self.H.len() as u8!=0 &&suit=='H'{
-            for i in self.H.iter(){
-               
-                    cards.push(self.map_key_to_card(*i, 'H'));
-                
-            }
-        }
-        if self.D.len() as u8!=0&&suit=='D'{
-            for i in self.D.iter(){
-               
-                    cards.push(self.map_key_to_card(*i, 'D'));
-                
-            }
-        }
-        if self.C.len() as u8!=0&&suit=='C'{
-            for i in self.C.iter(){
-               
-                    cards.push(self.map_key_to_card(*i, 'C'));
-                
-            }
-        }
-        if self.S.len() as u8!=0&&suit=='S'{
-            for i in self.S.iter(){
-               
-                    cards.push(self.map_key_to_card(*i, 'S'));
-                
-            }
-        }
-        cards
     }
     pub fn get_point_cards(&self)->Vec<String>{
         let mut cards:Vec<String>=Vec::new();
@@ -545,98 +435,6 @@ impl MyCARDS{
         }
         cards
     }
-pub fn get_trap_card_tens(&self,)->Vec<String>{
-    let mut cards:Vec<String>=Vec::new();
-    if self.H.len() as u8!=0{
-        for i in self.H.iter(){
-            if *i==16{
-                cards.push(self.map_key_to_card(*i, 'H'));
-            }
-        }
-    }
-    if self.D.len() as u8!=0{
-        for i in self.D.iter(){
-            if *i==16{
-                cards.push(self.map_key_to_card(*i, 'D'));
-            }
-        }
-    }
-    if self.C.len() as u8!=0{
-        for i in self.C.iter(){
-            if *i==16{
-                cards.push(self.map_key_to_card(*i, 'C'));
-            }
-        }
-    }
-    if self.S.len() as u8!=0{
-        for i in self.S.iter(){
-            if *i==16{
-                cards.push(self.map_key_to_card(*i, 'S'));
-            }
-        }
-    }
-    cards
-}
-pub fn get_non_point_trump(&self,trump:char)->Vec<String>{
-    let mut cards:Vec<String>=Vec::new();
-    match trump{
-        'H'=>{
-            for i in self.H.iter(){
-                if *i<16{
-                    cards.push(self.map_key_to_card(*i, trump).clone())
-                }
-            }
-        },
-        'C'=>{
-            for i in self.C.iter(){
-                if *i<16{
-                    cards.push(self.map_key_to_card(*i, trump).clone())
-                }
-            }
-        },
-        'S'=>{
-            for i in self.S.iter(){
-                if *i<16{
-                    cards.push(self.map_key_to_card(*i, trump).clone())
-                }
-            }
-        },
-        'D'=>{
-            for i in self.D.iter(){
-                if *i<16{
-                    cards.push(self.map_key_to_card(*i, trump).clone())
-                }
-            }
-        },
-        _=>(),
-    }
-    cards
-}
-pub fn get_cards_except_trump(&self,trump:char)->Vec<String>{
-    let mut cards:Vec<String>=Vec::new();
-    if self.H.len() as u8!=0&&trump!='H'{
-        for i in self.H.iter(){
-                cards.push(self.map_key_to_card(*i, 'H'));
-            
-        }
-    }
-    if self.D.len() as u8!=0&&trump!='D'{
-        for i in self.D.iter(){
-                cards.push(self.map_key_to_card(*i, 'D'));
-        }
-    }
-    if self.C.len() as u8!=0&&trump!='C'{
-        for i in self.C.iter(){
-                cards.push(self.map_key_to_card(*i, 'C'));
-        }
-    }
-    if self.S.len() as u8!=0&&trump!='S'{
-        for i in self.S.iter(){
-                cards.push(self.map_key_to_card(*i, 'S'));
-        }
-    }
-    cards
-}
 pub fn get_card_just_greater_than_this(&self,key:u8,trump:char)->String{
     let mut card_key:u8=0;
     if self.H.len() as u8!=0&&trump=='H'{
@@ -740,23 +538,7 @@ impl HandsInformation{
         //hands starts form 0 to 7
         self.hand.insert(hand,(played_card.as_bytes()[1] as char,winner_card.as_bytes()[1] as char));
     }
-    pub fn check_any_player_ran_out_of_this_suit(&self,suit:char)->usize{
-        //this function checks if any players is ran out of this suit cards and returns hand
-        if self.hand.len() as u8==0{
-            return 8 as usize;
-        }
-        let mut total_hands_completed:u8=(self.hand.len()-1) as u8;
-        while total_hands_completed!=0{
-            if suit==self.hand[&total_hands_completed].0{
-                    if self.hand[&total_hands_completed].0!=self.hand[&total_hands_completed].1{
-                        return total_hands_completed as usize;
-                    }
-            }
-            total_hands_completed-=1;
-        }
-        8 as usize//this means... this suit card was not defeated by any trump winning card..
-    }
-    pub fn update_suits_info_of_players(&mut self,playerid:u8,suit:char){
+   pub fn update_suits_info_of_players(&mut self,playerid:u8,suit:char){
         //this will list out the players who are ran out of this suit
         match suit{
             'H'=>self.H.push(playerid),
